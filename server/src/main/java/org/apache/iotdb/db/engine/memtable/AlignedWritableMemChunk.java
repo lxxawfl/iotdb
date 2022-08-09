@@ -24,8 +24,6 @@ import org.apache.iotdb.db.wal.buffer.IWALByteBufferView;
 import org.apache.iotdb.db.wal.utils.WALWriteUtils;
 import org.apache.iotdb.tsfile.exception.write.UnSupportedDataTypeException;
 import org.apache.iotdb.tsfile.file.metadata.enums.TSDataType;
-import org.apache.iotdb.tsfile.file.metadata.enums.TSEncoding;
-import org.apache.iotdb.tsfile.read.common.block.TsBlock;
 import org.apache.iotdb.tsfile.utils.Binary;
 import org.apache.iotdb.tsfile.utils.BitMap;
 import org.apache.iotdb.tsfile.utils.Pair;
@@ -297,13 +295,15 @@ public class AlignedWritableMemChunk implements IWritableMemChunk {
   @Override
   public void encode(IChunkWriter chunkWriter) {
     AlignedChunkWriterImpl alignedChunkWriter = (AlignedChunkWriterImpl) chunkWriter;
-    List<TSEncoding> encodingList = new ArrayList<>();
-    for (TSDataType e : list.getTsDataTypes()) {
-      encodingList.add(TSEncoding.PLAIN);
-    }
-    TsBlock tsBlock = list.buildTsBlock(0, encodingList, null);
-    alignedChunkWriter.write(
-        tsBlock.getTimeColumn(), tsBlock.getValueColumns(), tsBlock.getPositionCount());
+    //    List<TSEncoding> encodingList = new ArrayList<>();
+    //    for (TSDataType e : list.getTsDataTypes()) {
+    //      encodingList.add(TSEncoding.PLAIN);
+    //    }
+    //    TsBlock tsBlock = list.buildTsBlock(0, encodingList, null);
+    //    alignedChunkWriter.write(
+    //        tsBlock.getTimeColumn(), tsBlock.getValueColumns(), tsBlock.getPositionCount());
+    list.writeAlignedChunk(alignedChunkWriter);
+
     //    List<Integer> timeDuplicateAlignedRowIndexList = null;
     //    for (int sortedRowIndex = 0; sortedRowIndex < list.rowCount(); sortedRowIndex++) {
     //      long time = list.getTime(sortedRowIndex);
