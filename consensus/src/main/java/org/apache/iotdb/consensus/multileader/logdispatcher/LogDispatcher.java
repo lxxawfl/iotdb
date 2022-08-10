@@ -334,7 +334,7 @@ public class LogDispatcher {
 
     private long constructBatchFromWAL(
         long currentIndex, long maxIndex, List<TLogBatch> logBatches) {
-      logger.debug(
+      logger.info(
           String.format(
               "DataRegion[%s]->%s: currentIndex: %d, maxIndex: %d, iteratorIndex: %d",
               peer.getGroupId().getId(),
