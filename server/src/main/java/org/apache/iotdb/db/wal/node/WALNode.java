@@ -680,9 +680,11 @@ public class WALNode implements IWALNode {
     @Override
     public void waitForNextReady() throws InterruptedException {
       while (!hasNext()) {
-        buffer.waitForFlush(30, TimeUnit.SECONDS);
-        logger.info("wait for next ready timeout, execute roll");
-        rollWALFile();
+        boolean timeout = !buffer.waitForFlush(30, TimeUnit.SECONDS);
+        if (timeout) {
+          logger.info("timeout when waiting for next WAL entry ready, execute rollWALFile");
+          rollWALFile();
+        }
       }
     }
 
