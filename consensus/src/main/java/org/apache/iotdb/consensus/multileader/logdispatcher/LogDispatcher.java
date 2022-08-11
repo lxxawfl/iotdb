@@ -207,6 +207,12 @@ public class LogDispatcher {
           // we may block here if the synchronization pipeline is full
           syncStatus.addNextBatch(batch);
           // sends batch asynchronously and migrates the retry logic into the callback handler
+          logger.info(
+              "[SendBatch] -> DataRegion[{}]->[{}], startIndex: {}, endIndex: {}",
+              peer.getGroupId().getId(),
+              peer.getEndpoint().ip,
+              batch.getStartIndex(),
+              batch.getEndIndex());
           sendBatchAsync(batch, new DispatchLogHandler(this, batch));
         }
       } catch (InterruptedException e) {
@@ -229,7 +235,11 @@ public class LogDispatcher {
       List<TLogBatch> logBatches = new ArrayList<>();
       long startIndex = syncStatus.getNextSendingIndex();
       long maxIndexWhenBufferedRequestEmpty = startIndex;
-      logger.debug("[GetBatch] startIndex: {}", startIndex);
+      logger.info(
+          "[GetBatch] -> DataRegion[{}]->[{}] prepare, startIndex: {}",
+          peer.getGroupId().getId(),
+          peer.getEndpoint().ip,
+          startIndex);
       long endIndex;
       if (bufferedRequest.size() <= config.getReplication().getMaxRequestPerBatch()) {
         // Use drainTo instead of poll to reduce lock overhead
@@ -334,7 +344,7 @@ public class LogDispatcher {
 
     private long constructBatchFromWAL(
         long currentIndex, long maxIndex, List<TLogBatch> logBatches) {
-      logger.info(
+      logger.debug(
           String.format(
               "DataRegion[%s]->%s: currentIndex: %d, maxIndex: %d, iteratorIndex: %d",
               peer.getGroupId().getId(),
