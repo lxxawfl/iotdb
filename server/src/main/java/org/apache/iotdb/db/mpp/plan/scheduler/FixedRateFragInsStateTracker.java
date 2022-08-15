@@ -94,7 +94,7 @@ public class FixedRateFragInsStateTracker extends AbstractFragInsStateTracker {
       try (SetThreadName threadName = new SetThreadName(instance.getId().getFullId())) {
         FragmentInstanceState state = fetchState(instance);
         if (needPrintState(lastState, state, durationToLastPrintInMS)) {
-          logger.info("State is {}", state);
+          logger.debug("State is {}", state);
           lastState = state;
           durationToLastPrintInMS = 0;
         } else {

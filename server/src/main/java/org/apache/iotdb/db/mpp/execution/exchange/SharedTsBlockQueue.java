@@ -92,7 +92,7 @@ public class SharedTsBlockQueue {
 
   /** Notify no more tsblocks will be added to the queue. */
   public void setNoMoreTsBlocks(boolean noMoreTsBlocks) {
-    logger.info("SharedTsBlockQueue receive no more TsBlocks signal.");
+    logger.debug("SharedTsBlockQueue receive no more TsBlocks signal.");
     if (closed) {
       throw new IllegalStateException("queue has been destroyed");
     }

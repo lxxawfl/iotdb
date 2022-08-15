@@ -114,13 +114,13 @@ public class StandaloneScheduler implements IScheduler {
         }
         // The FragmentInstances has been dispatched successfully to corresponding host, we mark the
         stateMachine.transitionToRunning();
-        LOGGER.info("{} transit to RUNNING", getLogHeader());
+        LOGGER.debug("{} transit to RUNNING", getLogHeader());
         instances.forEach(
             instance ->
                 stateMachine.initialFragInstanceState(
                     instance.getId(), FragmentInstanceState.RUNNING));
         this.stateTracker.start();
-        LOGGER.info("{} state tracker starts", getLogHeader());
+        LOGGER.debug("{} state tracker starts", getLogHeader());
         break;
       case WRITE:
         try {
