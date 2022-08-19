@@ -176,6 +176,8 @@ public class WALRecoverManager {
     if (hasStarted) {
       logger.error("Cannot recover tsfile from wal because wal recovery has already started");
     } else {
+      logger.error(
+          "recoverPerformer.getTsFileAbsolutePath is {}", recoverPerformer.getTsFileAbsolutePath());
       absolutePath2RecoverPerformer.put(recoverPerformer.getTsFileAbsolutePath(), recoverPerformer);
     }
     return recoverPerformer.getRecoverListener();

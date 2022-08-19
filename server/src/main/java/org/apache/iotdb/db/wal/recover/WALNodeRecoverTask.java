@@ -181,6 +181,7 @@ public class WALNodeRecoverTask implements Runnable {
   }
 
   private void recoverInfoFromCheckpoints() {
+    logger.error("logDirectory is {}", logDirectory.getAbsolutePath());
     // parse memTables information
     CheckpointRecoverUtils.CheckpointInfo info =
         CheckpointRecoverUtils.recoverMemTableInfo(logDirectory);
@@ -196,10 +197,12 @@ public class WALNodeRecoverTask implements Runnable {
       }
     }
     // update firstValidVersionId and get recover performer from WALRecoverManager
+    logger.error("memTableId2Info size {}", memTableId2Info.values().size());
     for (MemTableInfo memTableInfo : memTableId2Info.values()) {
       firstValidVersionId = Math.min(firstValidVersionId, memTableInfo.getFirstFileVersionId());
 
       File tsFile = new File(memTableInfo.getTsFilePath());
+      logger.error("getAbsolutePath is {}", tsFile.getAbsolutePath());
       UnsealedTsFileRecoverPerformer recoverPerformer =
           walRecoverManger.removeRecoverPerformer(tsFile.getAbsolutePath());
       if (recoverPerformer != null) {
@@ -210,6 +213,8 @@ public class WALNodeRecoverTask implements Runnable {
 
   private void recoverTsFiles() {
     if (memTableId2RecoverPerformer.isEmpty()) {
+      logger.error(
+          "memTableId2RecoverPerformer is empty. {}", memTableId2RecoverPerformer.values());
       return;
     }
     // make preparation for recovery
@@ -232,12 +237,15 @@ public class WALNodeRecoverTask implements Runnable {
     // asc sort by version id
     WALFileUtils.ascSortByVersionId(walFiles);
     // read .wal files and redo logs
+    int entryIndex = 0;
+    int successIndex = 0;
     for (int i = 0; i < walFiles.length; ++i) {
       File walFile = walFiles[i];
       // last wal file may corrupt
       try (WALReader walReader = new WALReader(walFile, i == walFiles.length - 1)) {
         while (walReader.hasNext()) {
           WALEntry walEntry = walReader.next();
+          logger.error("Recover one Entry. File index: {}. Index: {}", i, entryIndex++);
           if (!memTableId2Info.containsKey(walEntry.getMemTableId())) {
             continue;
           }
@@ -246,6 +254,7 @@ public class WALNodeRecoverTask implements Runnable {
               memTableId2RecoverPerformer.get(walEntry.getMemTableId());
           if (recoverPerformer != null) {
             recoverPerformer.redoLog(walEntry);
+            logger.error("Redo an Entry. File index: {}. Index: {} ", i, successIndex++);
           } else {
             logger.warn(
                 "Fail to find TsFile recover performer for wal entry in TsFile {}", walFile);
@@ -260,9 +269,13 @@ public class WALNodeRecoverTask implements Runnable {
       try {
         recoverPerformer.endRecovery();
         recoverPerformer.getRecoverListener().succeed();
+
       } catch (Exception e) {
         recoverPerformer.getRecoverListener().fail(e);
       }
+      File fileAfterRecovered = new File(recoverPerformer.getTsFileAbsolutePath());
+      logger.error(
+          "Recover file: {}, size = {}", fileAfterRecovered.getName(), fileAfterRecovered.length());
     }
   }
 }

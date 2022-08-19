@@ -19,7 +19,6 @@
 package org.apache.iotdb.db.service;
 
 import org.apache.iotdb.db.conf.IoTDBDescriptor;
-import org.apache.iotdb.db.consensus.DataRegionConsensusImpl;
 import org.apache.iotdb.db.engine.StorageEngine;
 import org.apache.iotdb.db.engine.StorageEngineV2;
 import org.apache.iotdb.db.metadata.schemaregion.SchemaEngineMode;
@@ -54,9 +53,9 @@ public class IoTDBShutdownHook extends Thread {
     if (IoTDB.isClusterMode()) {
       // This setting ensures that compaction work is not discarded
       // even if there are frequent restarts
-      DataRegionConsensusImpl.getInstance()
-          .getAllConsensusGroupIds()
-          .forEach(id -> DataRegionConsensusImpl.getInstance().triggerSnapshot(id));
+      //      DataRegionConsensusImpl.getInstance()
+      //          .getAllConsensusGroupIds()
+      //          .forEach(id -> DataRegionConsensusImpl.getInstance().triggerSnapshot(id));
     }
 
     if (logger.isInfoEnabled()) {

@@ -459,7 +459,9 @@ public class DataRegion {
         // tsFiles without resource file are unsealed
         while (!value.isEmpty()) {
           TsFileResource tsFileResource = value.get(value.size() - 1);
+          logger.error("tsfile is: {}", tsFileResource.getTsFile().getAbsolutePath());
           if (tsFileResource.resourceFileExists()) {
+            logger.error("tsfile resource file exist");
             break;
           } else {
             value.remove(value.size() - 1);

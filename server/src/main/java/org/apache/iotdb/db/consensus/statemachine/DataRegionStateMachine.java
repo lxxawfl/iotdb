@@ -180,16 +180,16 @@ public class DataRegionStateMachine extends BaseStateMachine {
           Thread.currentThread().interrupt();
         }
       }
+      List<TSStatus> subStatus = new LinkedList<>();
+      for (InsertNode insertNode : insertNodeWrapper.getInsertNodes()) {
+        subStatus.add(write(insertNode));
+      }
       logger.info(
           "region = {}, queue size {}, startSyncIndex = {}, endSyncIndex = {}",
           region.getDataRegionId(),
           requestCache.size(),
           insertNodeWrapper.getStartSyncIndex(),
           insertNodeWrapper.getEndSyncIndex());
-      List<TSStatus> subStatus = new LinkedList<>();
-      for (InsertNode insertNode : insertNodeWrapper.getInsertNodes()) {
-        subStatus.add(write(insertNode));
-      }
       queueSortCondition.signalAll();
       return new TSStatus().setSubStatus(subStatus);
     } finally {
