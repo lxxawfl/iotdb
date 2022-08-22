@@ -21,10 +21,11 @@ package org.apache.iotdb.db.doublelive;
 import org.apache.iotdb.tsfile.utils.Pair;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
 import java.util.concurrent.BlockingQueue;
+
+import static org.apache.iotdb.db.service.basic.ServiceProvider.DOUBLE_LIVE_LOGGER;
 
 /**
  * OperationSyncProducer using BlockingQueue to cache PhysicalPlan. And persist some PhysicalPlan
@@ -32,7 +33,7 @@ import java.util.concurrent.BlockingQueue;
  */
 public class OperationSyncProducer {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(OperationSyncProducer.class);
+  private static final Logger LOGGER = DOUBLE_LIVE_LOGGER;
 
   private final BlockingQueue<Pair<ByteBuffer, OperationSyncPlanTypeUtils.OperationSyncPlanType>>
       operationSyncQueue;

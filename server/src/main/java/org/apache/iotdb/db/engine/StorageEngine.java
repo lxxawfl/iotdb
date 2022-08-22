@@ -109,6 +109,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
+import static org.apache.iotdb.db.service.basic.ServiceProvider.DOUBLE_LIVE_LOGGER;
+
 public class StorageEngine implements IService {
   private static final Logger logger = LoggerFactory.getLogger(StorageEngine.class);
 
@@ -199,7 +201,7 @@ public class StorageEngine implements IService {
         new Thread(consumer).start();
       }
 
-      logger.info("Successfully initialize OperationSync!");
+      DOUBLE_LIVE_LOGGER.info("Successfully initialize OperationSync!");
     } else {
       operationSyncsessionPool = null;
       operationSyncProducer = null;
