@@ -133,7 +133,7 @@ public class IoTDBDescriptor {
   }
 
   /**
-   * get props url location
+   * get external props url location
    *
    * @return url object if location exit, otherwise null.
    */
@@ -976,6 +976,9 @@ public class IoTDBDescriptor {
 
     // author cache
     loadAuthorCache(properties);
+
+    // external lib props
+    loadExternalLibProps(properties);
   }
 
   private void loadAuthorCache(Properties properties) {
