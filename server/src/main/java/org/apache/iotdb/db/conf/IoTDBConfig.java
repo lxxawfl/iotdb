@@ -979,7 +979,17 @@ public class IoTDBConfig {
   /** Maximum size of wal buffer used in MultiLeader consensus. Unit: byte */
   private long throttleThreshold = 50 * 1024 * 1024 * 1024L;
 
+  private boolean enableSnapshot = true;
+
   IoTDBConfig() {}
+
+  public boolean isEnableSnapshot() {
+    return enableSnapshot;
+  }
+
+  public void setEnableSnapshot(boolean enableSnapshot) {
+    this.enableSnapshot = enableSnapshot;
+  }
 
   public float getUdfMemoryBudgetInMB() {
     return udfMemoryBudgetInMB;

@@ -345,6 +345,10 @@ public class IoTDBDescriptor {
                 "enable_mem_control", Boolean.toString(conf.isEnableMemControl())))));
     logger.info("IoTDB enable memory control: {}", conf.isEnableMemControl());
 
+    conf.setEnableSnapshot(
+        (Boolean.parseBoolean(
+            properties.getProperty("enable_snapshot", Boolean.toString(conf.isEnableSnapshot())))));
+
     long seqTsFileSize =
         Long.parseLong(
             properties
