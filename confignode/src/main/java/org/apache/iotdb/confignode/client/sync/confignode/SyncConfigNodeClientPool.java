@@ -74,14 +74,14 @@ public class SyncConfigNodeClientPool {
           case REGISTER_CONFIG_NODE:
             // Only use registerConfigNode when the ConfigNode is first startup.
             return client.registerConfigNode((TConfigNodeRegisterReq) req);
-          case ADD_CONSENSUS_GROUP:
+          case CREATE_PEER_FOR_CONSENSUS_GROUP:
             return client.addConsensusGroup((TAddConsensusGroupReq) req);
           case NOTIFY_REGISTER_SUCCESS:
             client.notifyRegisterSuccess();
             return null;
           case REMOVE_CONFIG_NODE:
             return removeConfigNode((TConfigNodeLocation) req, client);
-          case REMOVE_CONSENSUS_GROUP:
+          case DELETE_PEER_FOR_CONSENSUS_GROUP:
             return client.removeConsensusGroup((TConfigNodeLocation) req);
           case STOP_CONFIG_NODE:
             // Only use stopConfigNode when the ConfigNode is removed.

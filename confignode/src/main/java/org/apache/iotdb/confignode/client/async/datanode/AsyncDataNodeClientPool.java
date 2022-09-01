@@ -372,7 +372,7 @@ public class AsyncDataNodeClientPool {
   }
 
   /**
-   * notify all DataNodes when the capacity of the ConfigNodeGroup is expanded or reduced
+   * Notify all DataNodes when the capacity of the ConfigNodeGroup is expanded or reduced
    *
    * @param registeredDataNodeLocationMap Map<Integer, TDataNodeLocation>
    * @param registeredConfigNodes List<TConfigNodeLocation>

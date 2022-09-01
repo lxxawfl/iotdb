@@ -21,7 +21,7 @@ package org.apache.iotdb.confignode.procedure.state;
 
 public enum AddConfigNodeState {
   ADD_CONFIG_NODE_PREPARE,
-  ADD_CONSENSUS_GROUP,
-  ADD_PEER,
+  CREATE_PEER_FOR_CONSENSUS_GROUP,
+  ADD_PEER_FOR_CONSENSUS_GROUP,
   REGISTER_SUCCESS
 }

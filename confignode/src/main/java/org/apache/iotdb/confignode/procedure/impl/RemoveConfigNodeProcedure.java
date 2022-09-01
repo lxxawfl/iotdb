@@ -37,7 +37,7 @@ import java.nio.ByteBuffer;
 /** remove config node procedure */
 public class RemoveConfigNodeProcedure extends AbstractNodeProcedure<RemoveConfigNodeState> {
   private static final Logger LOG = LoggerFactory.getLogger(RemoveConfigNodeProcedure.class);
-  private static final int retryThreshold = 5;
+  private static final int RETRY_THRESHOLD = 5;
 
   private TConfigNodeLocation tConfigNodeLocation;
 
@@ -57,15 +57,15 @@ public class RemoveConfigNodeProcedure extends AbstractNodeProcedure<RemoveConfi
     }
     try {
       switch (state) {
-        case REMOVE_PEER:
-          env.removeConfigNodePeer(tConfigNodeLocation);
-          setNextState(RemoveConfigNodeState.REMOVE_CONSENSUS_GROUP);
-          LOG.info("Remove peer {}", tConfigNodeLocation);
+        case REMOVE_PEER_FOR_CONSENSUS_GROUP:
+          env.removePeerForConsensusGroup(tConfigNodeLocation);
+          setNextState(RemoveConfigNodeState.DELETE_PEER_FOR_CONSENSUS_GROUP);
+          LOG.info("Remove peer {} for consensus group.", tConfigNodeLocation);
           break;
-        case REMOVE_CONSENSUS_GROUP:
-          env.removeConsensusGroup(tConfigNodeLocation);
+        case DELETE_PEER_FOR_CONSENSUS_GROUP:
+          env.deletePeerForConsensusGroup(tConfigNodeLocation);
           setNextState(RemoveConfigNodeState.STOP_CONFIG_NODE);
-          LOG.info("Remove Consensus Group {}", tConfigNodeLocation);
+          LOG.info("Delete peer {} fro consensus group.", tConfigNodeLocation);
           break;
         case STOP_CONFIG_NODE:
           env.broadCastTheLatestConfigNodeGroup();
@@ -82,7 +82,7 @@ public class RemoveConfigNodeProcedure extends AbstractNodeProcedure<RemoveConfi
             tConfigNodeLocation,
             state,
             e);
-        if (getCycles() > retryThreshold) {
+        if (getCycles() > RETRY_THRESHOLD) {
           setFailure(new ProcedureException("State stuck at " + state));
         }
       }
@@ -111,7 +111,7 @@ public class RemoveConfigNodeProcedure extends AbstractNodeProcedure<RemoveConfi
 
   @Override
   protected RemoveConfigNodeState getInitialState() {
-    return RemoveConfigNodeState.REMOVE_PEER;
+    return RemoveConfigNodeState.REMOVE_PEER_FOR_CONSENSUS_GROUP;
   }
 
   @Override

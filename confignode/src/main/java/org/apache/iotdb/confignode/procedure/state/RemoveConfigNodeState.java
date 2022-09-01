@@ -20,8 +20,7 @@
 package org.apache.iotdb.confignode.procedure.state;
 
 public enum RemoveConfigNodeState {
-  REMOVE_CONSENSUS_GROUP,
-  REMOVE_PEER,
-
+  DELETE_PEER_FOR_CONSENSUS_GROUP,
+  REMOVE_PEER_FOR_CONSENSUS_GROUP,
   STOP_CONFIG_NODE
 }

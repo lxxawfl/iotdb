@@ -175,18 +175,20 @@ public class ConfigNodeProcedureEnv {
    *
    * @param tConfigNodeLocation New ConfigNode's location
    */
-  public void addConsensusGroup(TConfigNodeLocation tConfigNodeLocation)
+  public void createPeerForConsensusGroup(TConfigNodeLocation tConfigNodeLocation)
       throws AddConsensusGroupException {
     List<TConfigNodeLocation> configNodeLocations =
         new ArrayList<>(configManager.getNodeManager().getRegisteredConfigNodes());
     configNodeLocations.add(tConfigNodeLocation);
+
     TSStatus status =
         (TSStatus)
             SyncConfigNodeClientPool.getInstance()
                 .sendSyncRequestToConfigNodeWithRetry(
                     tConfigNodeLocation.getInternalEndPoint(),
                     new TAddConsensusGroupReq(configNodeLocations),
-                    ConfigNodeRequestType.ADD_CONSENSUS_GROUP);
+                    ConfigNodeRequestType.CREATE_PEER_FOR_CONSENSUS_GROUP);
+
     if (status.getCode() != TSStatusCode.SUCCESS_STATUS.getStatusCode()) {
       throw new AddConsensusGroupException(tConfigNodeLocation);
     }
@@ -198,17 +200,17 @@ public class ConfigNodeProcedureEnv {
    * @param configNodeLocation The new ConfigNode
    * @throws AddPeerException When addPeer doesn't success
    */
-  public void addConfigNodePeer(TConfigNodeLocation configNodeLocation) throws AddPeerException {
-    configManager.getConsensusManager().addConfigNodePeer(configNodeLocation);
+  public void addPeerForConsensusGroup(TConfigNodeLocation configNodeLocation) throws AddPeerException {
+    configManager.getConsensusManager().addPeerForConsensusGroup(configNodeLocation);
   }
 
   /**
-   * Remove peer in Leader node
+   * Remove peer for consensus group
    *
-   * @param tConfigNodeLocation node is removed
+   * @param tConfigNodeLocation config node location to be removed
    * @throws ProcedureException if failed status
    */
-  public void removeConfigNodePeer(TConfigNodeLocation tConfigNodeLocation)
+  public void removePeerForConsensusGroup(TConfigNodeLocation tConfigNodeLocation)
       throws ProcedureException {
     removeConfigNodeLock.tryLock();
     TSStatus tsStatus;
@@ -221,7 +223,7 @@ public class ConfigNodeProcedureEnv {
         tsStatus =
             new TSStatus(TSStatusCode.REMOVE_CONFIGNODE_FAILED.getStatusCode())
                 .setMessage(
-                    "Remove ConfigNode failed because update ConsensusGroup peer information failed.");
+                    "removePeerForConsensusGroup failed because update ConsensusGroup peer information failed.");
       }
       if (tsStatus.getCode() != TSStatusCode.SUCCESS_STATUS.getStatusCode()) {
         throw new ProcedureException(tsStatus.getMessage());
@@ -232,12 +234,12 @@ public class ConfigNodeProcedureEnv {
   }
 
   /**
-   * Remove Consensus Group in removed node
+   * Delete peer for consensus group
    *
-   * @param tConfigNodeLocation config node location
+   * @param tConfigNodeLocation config node location to be deleted
    * @throws ProcedureException if failed status
    */
-  public void removeConsensusGroup(TConfigNodeLocation tConfigNodeLocation)
+  public void deletePeerForConsensusGroup(TConfigNodeLocation tConfigNodeLocation)
       throws ProcedureException {
     TSStatus tsStatus =
         (TSStatus)
@@ -245,7 +247,7 @@ public class ConfigNodeProcedureEnv {
                 .sendSyncRequestToConfigNodeWithRetry(
                     tConfigNodeLocation.getInternalEndPoint(),
                     tConfigNodeLocation,
-                    ConfigNodeRequestType.REMOVE_CONSENSUS_GROUP);
+                    ConfigNodeRequestType.DELETE_PEER_FOR_CONSENSUS_GROUP);
     if (tsStatus.getCode() != TSStatusCode.SUCCESS_STATUS.getStatusCode()) {
       throw new ProcedureException(tsStatus.getMessage());
     }

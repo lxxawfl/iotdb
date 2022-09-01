@@ -58,17 +58,17 @@ public class AddConfigNodeProcedure extends AbstractNodeProcedure<AddConfigNodeS
     try {
       switch (state) {
         case ADD_CONFIG_NODE_PREPARE:
-          setNextState(AddConfigNodeState.ADD_CONSENSUS_GROUP);
+          setNextState(AddConfigNodeState.CREATE_PEER_FOR_CONSENSUS_GROUP);
           break;
-        case ADD_CONSENSUS_GROUP:
-          env.addConsensusGroup(tConfigNodeLocation);
-          setNextState(AddConfigNodeState.ADD_PEER);
-          LOG.info("Add consensus group {}", tConfigNodeLocation);
+        case CREATE_PEER_FOR_CONSENSUS_GROUP:
+          env.createPeerForConsensusGroup(tConfigNodeLocation);
+          setNextState(AddConfigNodeState.ADD_PEER_FOR_CONSENSUS_GROUP);
+          LOG.info("Create peer {} for consensus group.", tConfigNodeLocation);
           break;
-        case ADD_PEER:
-          env.addConfigNodePeer(tConfigNodeLocation);
+        case ADD_PEER_FOR_CONSENSUS_GROUP:
+          env.addPeerForConsensusGroup(tConfigNodeLocation);
           setNextState(AddConfigNodeState.REGISTER_SUCCESS);
-          LOG.info("Add Peer of {}", tConfigNodeLocation);
+          LOG.info("Add peer {} for consensus group.", tConfigNodeLocation);
           break;
         case REGISTER_SUCCESS:
           env.notifyRegisterSuccess(tConfigNodeLocation);
@@ -97,12 +97,12 @@ public class AddConfigNodeProcedure extends AbstractNodeProcedure<AddConfigNodeS
   protected void rollbackState(ConfigNodeProcedureEnv env, AddConfigNodeState state)
       throws ProcedureException {
     switch (state) {
-      case ADD_CONSENSUS_GROUP:
-        env.removeConsensusGroup(tConfigNodeLocation);
+      case CREATE_PEER_FOR_CONSENSUS_GROUP:
+        env.deletePeerForConsensusGroup(tConfigNodeLocation);
         LOG.info("Rollback add consensus group:{}", tConfigNodeLocation);
         break;
-      case ADD_PEER:
-        env.removeConfigNodePeer(tConfigNodeLocation);
+      case ADD_PEER_FOR_CONSENSUS_GROUP:
+        env.removePeerForConsensusGroup(tConfigNodeLocation);
         LOG.info("Rollback remove peer:{}", tConfigNodeLocation);
         break;
     }
@@ -111,8 +111,8 @@ public class AddConfigNodeProcedure extends AbstractNodeProcedure<AddConfigNodeS
   @Override
   protected boolean isRollbackSupported(AddConfigNodeState state) {
     switch (state) {
-      case ADD_CONSENSUS_GROUP:
-      case ADD_PEER:
+      case CREATE_PEER_FOR_CONSENSUS_GROUP:
+      case ADD_PEER_FOR_CONSENSUS_GROUP:
         return true;
     }
     return false;

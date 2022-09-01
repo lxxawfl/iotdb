@@ -70,14 +70,14 @@ import static org.apache.iotdb.confignode.conf.ConfigNodeConstant.METRIC_STATUS_
 import static org.apache.iotdb.confignode.conf.ConfigNodeConstant.METRIC_TAG_TOTAL;
 
 /**
- * The NodeInfo stores cluster node information. The cluster node information including: 1. DataNode
- * information 2. ConfigNode information
+ * The NodeInfo stores cluster node information. The cluster node information including:
+ * 1. DataNode information 2. ConfigNode information
  */
 public class NodeInfo implements SnapshotProcessor {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(NodeInfo.class);
 
-  private static final int minimumDataNode =
+  public static final int MIN_DATA_NODE_NUM =
       Math.max(
           ConfigNodeDescriptor.getInstance().getConf().getSchemaReplicationFactor(),
           ConfigNodeDescriptor.getInstance().getConf().getDataReplicationFactor());
@@ -175,12 +175,12 @@ public class NodeInfo implements SnapshotProcessor {
       registeredDataNodes.put(info.getLocation().getDataNodeId(), info);
 
       result = new TSStatus(TSStatusCode.SUCCESS_STATUS.getStatusCode());
-      if (nextNodeId.get() < minimumDataNode) {
+      if (nextNodeId.get() < MIN_DATA_NODE_NUM) {
         result.setMessage(
             String.format(
                 "To enable IoTDB-Cluster's data service, please register %d more IoTDB-DataNode",
-                minimumDataNode - nextNodeId.get()));
-      } else if (nextNodeId.get() == minimumDataNode) {
+                MIN_DATA_NODE_NUM - nextNodeId.get()));
+      } else if (nextNodeId.get() == MIN_DATA_NODE_NUM) {
         result.setMessage("IoTDB-Cluster could provide data service, now enjoy yourself!");
       }
     } finally {
@@ -534,10 +534,6 @@ public class NodeInfo implements SnapshotProcessor {
   @TestOnly
   public int getNextNodeId() {
     return nextNodeId.get();
-  }
-
-  public static int getMinimumDataNode() {
-    return minimumDataNode;
   }
 
   @TestOnly

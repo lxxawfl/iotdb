@@ -431,11 +431,11 @@ public class DataNodeRemoveHandler {
     TSStatus status = new TSStatus(TSStatusCode.SUCCESS_STATUS.getStatusCode());
     int removedDataNodeSize = removeDataNodePlan.getDataNodeLocations().size();
     int allDataNodeSize = configManager.getNodeManager().getRegisteredDataNodeCount();
-    if (allDataNodeSize - removedDataNodeSize < NodeInfo.getMinimumDataNode()) {
+    if (allDataNodeSize - removedDataNodeSize < NodeInfo.MIN_DATA_NODE_NUM) {
       status.setCode(TSStatusCode.LACK_REPLICATION.getStatusCode());
       status.setMessage(
           "lack replication, allow most removed Data Node size : "
-              + (allDataNodeSize - NodeInfo.getMinimumDataNode()));
+              + (allDataNodeSize - NodeInfo.MIN_DATA_NODE_NUM));
     }
     return status;
   }
