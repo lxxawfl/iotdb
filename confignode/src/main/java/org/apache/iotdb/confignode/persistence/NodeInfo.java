@@ -70,8 +70,8 @@ import static org.apache.iotdb.confignode.conf.ConfigNodeConstant.METRIC_STATUS_
 import static org.apache.iotdb.confignode.conf.ConfigNodeConstant.METRIC_TAG_TOTAL;
 
 /**
- * The NodeInfo stores cluster node information. The cluster node information including:
- * 1. DataNode information 2. ConfigNode information
+ * The NodeInfo stores cluster node information. The cluster node information including: 1. DataNode
+ * information 2. ConfigNode information
  */
 public class NodeInfo implements SnapshotProcessor {
 

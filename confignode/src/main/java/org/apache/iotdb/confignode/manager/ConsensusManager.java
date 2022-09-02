@@ -136,7 +136,8 @@ public class ConsensusManager {
    * @param configNodeLocation The new ConfigNode
    * @throws AddPeerException When addPeer doesn't success
    */
-  public void addPeerForConsensusGroup(TConfigNodeLocation configNodeLocation) throws AddPeerException {
+  public void addPeerForConsensusGroup(TConfigNodeLocation configNodeLocation)
+      throws AddPeerException {
     boolean result =
         consensusImpl
             .addPeer(
