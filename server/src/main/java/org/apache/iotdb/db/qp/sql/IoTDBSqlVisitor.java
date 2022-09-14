@@ -645,11 +645,14 @@ public class IoTDBSqlVisitor extends IoTDBSqlParserBaseVisitor<Operator> {
     CreateTriggerOperator createTriggerOperator =
         new CreateTriggerOperator(SQLConstant.TOK_TRIGGER_CREATE);
     createTriggerOperator.setTriggerName(parseIdentifier(ctx.triggerName.getText()));
+    if (ctx.triggerEventClause().DELETE() != null) {
+      throw new SQLParserException("Trigger does not support DELETE as TRIGGER_EVENT for now.");
+    }
     createTriggerOperator.setEvent(
         ctx.triggerEventClause().BEFORE() != null
             ? TriggerEvent.BEFORE_INSERT
             : TriggerEvent.AFTER_INSERT);
-    createTriggerOperator.setFullPath(parseFullPath(ctx.fullPath()));
+    createTriggerOperator.setFullPath(parsePrefixPath(ctx.prefixPath()));
     createTriggerOperator.setClassName(parseStringLiteral(ctx.className.getText()));
     if (ctx.triggerAttributeClause() != null) {
       for (IoTDBSqlParser.TriggerAttributeContext triggerAttributeContext :
@@ -2243,8 +2246,6 @@ public class IoTDBSqlVisitor extends IoTDBSqlParserBaseVisitor<Operator> {
       return new SetSystemModeOperator(SQLConstant.TOK_SET_SYSTEM_MODE, NodeStatus.Running);
     } else if (ctx.READONLY() != null) {
       return new SetSystemModeOperator(SQLConstant.TOK_SET_SYSTEM_MODE, NodeStatus.ReadOnly);
-    } else if (ctx.ERROR() != null) {
-      return new SetSystemModeOperator(SQLConstant.TOK_SET_SYSTEM_MODE, NodeStatus.Error);
     } else {
       throw new RuntimeException("Unknown system status in set system command.");
     }
