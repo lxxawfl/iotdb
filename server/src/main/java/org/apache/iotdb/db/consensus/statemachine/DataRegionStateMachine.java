@@ -189,7 +189,7 @@ public class DataRegionStateMachine extends BaseStateMachine {
           Thread.currentThread().interrupt();
         }
       }
-      logger.debug(
+      logger.info(
           "region = {}, queue size {}, startSyncIndex = {}, endSyncIndex = {}",
           region.getDataRegionId(),
           requestCache.size(),
