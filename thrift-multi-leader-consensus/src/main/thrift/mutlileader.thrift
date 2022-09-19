@@ -29,6 +29,7 @@ struct TLogBatch {
 struct TSyncLogReq {
   1: required common.TConsensusGroupId consensusGroupId
   2: required list<TLogBatch> batches
+  3: required string sourceDataNodeId
 }
 
 struct TSyncLogRes {

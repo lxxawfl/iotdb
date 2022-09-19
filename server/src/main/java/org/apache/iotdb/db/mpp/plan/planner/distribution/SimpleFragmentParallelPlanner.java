@@ -153,6 +153,18 @@ public class SimpleFragmentParallelPlanner implements IFragmentParallelPlaner {
     } else {
       targetIndex = (int) (queryContext.getSession().getSessionId() % availableDataNodes.size());
     }
+    // fake logic
+    for (TDataNodeLocation node : availableDataNodes) {
+      if (node.getInternalEndPoint()
+          .getIp()
+          .equals(IoTDBDescriptor.getInstance().getConfig().getInternalAddress())) {
+        logger.warn(
+            "{} - target node is self: {}",
+            regionReplicaSet.getRegionId(),
+            node.getInternalEndPoint());
+        return node;
+      }
+    }
     return availableDataNodes.get(targetIndex);
   }
 

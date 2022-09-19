@@ -136,13 +136,13 @@ public class MultiLeaderServerImpl {
       }
       IndexedConsensusRequest indexedConsensusRequest =
           buildIndexedConsensusRequestForLocalRequest(request);
-      if (indexedConsensusRequest.getSearchIndex() % 1000 == 0) {
-        logger.info(
-            "DataRegion[{}]: index after build: safeIndex:{}, searchIndex: {}",
-            thisNode.getGroupId(),
-            getCurrentSafelyDeletedSearchIndex(),
-            indexedConsensusRequest.getSearchIndex());
-      }
+      //      if (indexedConsensusRequest.getSearchIndex() % 1000 == 0) {
+      logger.info(
+          "DataRegion[{}]: index after build: safeIndex:{}, searchIndex: {}",
+          thisNode.getGroupId(),
+          getCurrentSafelyDeletedSearchIndex(),
+          indexedConsensusRequest.getSearchIndex());
+      //      }
       // TODO wal and memtable
       TSStatus result = stateMachine.write(indexedConsensusRequest);
       if (result.getCode() == TSStatusCode.SUCCESS_STATUS.getStatusCode()) {

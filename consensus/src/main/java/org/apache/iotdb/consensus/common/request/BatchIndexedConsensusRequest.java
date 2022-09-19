@@ -30,9 +30,12 @@ public class BatchIndexedConsensusRequest implements IConsensusRequest {
   private long endSyncIndex;
   private final List<IndexedConsensusRequest> requests;
 
-  public BatchIndexedConsensusRequest() {
+  private final String sourceDataNodeId;
+
+  public BatchIndexedConsensusRequest(String sourceDataNodeId) {
     this.requests = new LinkedList<>();
     this.isStartSyncIndexInitialized = false;
+    this.sourceDataNodeId = sourceDataNodeId;
   }
 
   public void add(IndexedConsensusRequest request) {
@@ -46,6 +49,10 @@ public class BatchIndexedConsensusRequest implements IConsensusRequest {
 
   public long getStartSyncIndex() {
     return startSyncIndex;
+  }
+
+  public String getSourceDataNodeId() {
+    return sourceDataNodeId;
   }
 
   public long getEndSyncIndex() {

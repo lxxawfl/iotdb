@@ -137,6 +137,9 @@ public class IndexController {
         }
       }
       currentIndex = lastFlushedIndex;
+      logger.info(
+          "restore sync index from version file: {}",
+          versionFiles[maxVersionIndex].getAbsolutePath());
     } else {
       versionFile = new File(directory, prefix + "0");
       try {

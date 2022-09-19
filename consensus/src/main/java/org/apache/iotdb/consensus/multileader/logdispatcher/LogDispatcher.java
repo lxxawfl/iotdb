@@ -325,13 +325,17 @@ public class LogDispatcher {
       try {
         AsyncMultiLeaderServiceClient client = clientManager.borrowClient(peer.getEndpoint());
         TSyncLogReq req =
-            new TSyncLogReq(peer.getGroupId().convertToTConsensusGroupId(), batch.getBatches());
+            new TSyncLogReq(
+                peer.getGroupId().convertToTConsensusGroupId(),
+                batch.getBatches(),
+                impl.getThisNode().getEndpoint().ip);
         logger.info(
-            "Send Batch[startIndex:{}, endIndex:{}] to {} - {}",
-            batch.getStartIndex(),
-            batch.getEndIndex(),
+            "Send Batch from {} to {} region {} startIndex {} endIndex {}",
+            impl.getThisNode().getEndpoint().getIp(),
             peer.getEndpoint().getIp(),
-            peer.getGroupId().convertToTConsensusGroupId().getId());
+            peer.getGroupId().convertToTConsensusGroupId().getId(),
+            batch.getStartIndex(),
+            batch.getEndIndex());
         client.syncLog(req, handler);
       } catch (IOException | TException e) {
         logger.error("Can not sync logs to peer {} because", peer, e);

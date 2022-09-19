@@ -135,6 +135,12 @@ public class DataRegionStateMachine extends BaseStateMachine {
    * deserialization of PlanNode to be concurrent
    */
   private TSStatus cacheAndInsertLatestNode(InsertNodeWrapper insertNodeWrapper) {
+    logger.info(
+        "receive from {} to region {} startSyncIndex {} endSyncIndex {}",
+        insertNodeWrapper.sourceDataNodeId,
+        region.getDataRegionId(),
+        insertNodeWrapper.getStartSyncIndex(),
+        insertNodeWrapper.getEndSyncIndex());
     queueLock.lock();
     try {
       requestCache.add(insertNodeWrapper);
@@ -190,9 +196,9 @@ public class DataRegionStateMachine extends BaseStateMachine {
         }
       }
       logger.info(
-          "region = {}, queue size {}, startSyncIndex = {}, endSyncIndex = {}",
+          "execute from {} to region {} startSyncIndex {} endSyncIndex {}",
+          insertNodeWrapper.sourceDataNodeId,
           region.getDataRegionId(),
-          requestCache.size(),
           insertNodeWrapper.getStartSyncIndex(),
           insertNodeWrapper.getEndSyncIndex());
       List<TSStatus> subStatus = new LinkedList<>();
@@ -211,10 +217,13 @@ public class DataRegionStateMachine extends BaseStateMachine {
     private final long endSyncIndex;
     private final List<PlanNode> insertNodes;
 
-    public InsertNodeWrapper(long startSyncIndex, long endSyncIndex) {
+    private final String sourceDataNodeId;
+
+    public InsertNodeWrapper(long startSyncIndex, long endSyncIndex, String sourceDataNodeId) {
       this.startSyncIndex = startSyncIndex;
       this.endSyncIndex = endSyncIndex;
       this.insertNodes = new LinkedList<>();
+      this.sourceDataNodeId = sourceDataNodeId;
     }
 
     @Override
@@ -241,7 +250,10 @@ public class DataRegionStateMachine extends BaseStateMachine {
 
   private InsertNodeWrapper deserializeAndWrap(BatchIndexedConsensusRequest batchRequest) {
     InsertNodeWrapper insertNodeWrapper =
-        new InsertNodeWrapper(batchRequest.getStartSyncIndex(), batchRequest.getEndSyncIndex());
+        new InsertNodeWrapper(
+            batchRequest.getStartSyncIndex(),
+            batchRequest.getEndSyncIndex(),
+            batchRequest.getSourceDataNodeId());
     for (IndexedConsensusRequest indexedRequest : batchRequest.getRequests()) {
       insertNodeWrapper.add(grabInsertNode(indexedRequest));
     }
