@@ -152,6 +152,7 @@ public class FragmentInstanceDispatcherImpl implements IFragInstanceDispatcher {
 
   private void dispatchRemote(FragmentInstance instance, TEndPoint endPoint)
       throws FragmentInstanceDispatchException {
+    logger.info("prepare to dispatch FI {}", instance);
     try (SyncDataNodeInternalServiceClient client =
         internalServiceClientManager.borrowClient(endPoint)) {
       switch (instance.getType()) {
@@ -187,7 +188,7 @@ public class FragmentInstanceDispatcherImpl implements IFragInstanceDispatcher {
                   String.format("unknown query type [%s]", instance.getType())));
       }
     } catch (IOException | TException e) {
-      logger.error("can't connect to node {}", endPoint, e);
+      logger.error("send FI {}. can't connect to node {}", instance.getId(), endPoint, e);
       TSStatus status = new TSStatus();
       status.setCode(TSStatusCode.SYNC_CONNECTION_EXCEPTION.getStatusCode());
       status.setMessage("can't connect to node {}" + endPoint);

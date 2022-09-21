@@ -223,11 +223,13 @@ public class DataNodeInternalRPCServiceImpl implements IDataNodeRPCService.Iface
 
   @Override
   public TSendPlanNodeResp sendPlanNode(TSendPlanNodeReq req) {
-    LOGGER.info("receive PlanNode to group[{}]", req.getConsensusGroupId());
     ConsensusGroupId groupId =
         ConsensusGroupId.Factory.createFromTConsensusGroupId(req.getConsensusGroupId());
     PlanNode planNode = PlanNodeType.deserialize(req.planNode.body);
-    return regionManager.executePlanNode(groupId, planNode);
+    LOGGER.info("receive PlanNode to group[{}]. PlanNode: {}", req.getConsensusGroupId(), planNode);
+    TSendPlanNodeResp resp = regionManager.executePlanNode(groupId, planNode);
+    LOGGER.info("execute sendPlanNode done. {}", planNode.getPlanNodeId());
+    return resp;
   }
 
   @Override

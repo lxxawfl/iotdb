@@ -19,6 +19,7 @@
 
 package org.apache.iotdb.db.mpp.plan.analyze;
 
+import org.apache.iotdb.commons.StepTracker;
 import org.apache.iotdb.commons.path.PartialPath;
 import org.apache.iotdb.db.conf.IoTDBDescriptor;
 import org.apache.iotdb.db.exception.sql.SemanticException;
@@ -40,6 +41,7 @@ public class SchemaValidator {
 
   public static ISchemaTree validate(InsertNode insertNode) {
 
+    long startTime = System.nanoTime();
     ISchemaTree schemaTree;
     if (insertNode instanceof BatchInsertNode) {
       BatchInsertNode batchInsertNode = (BatchInsertNode) insertNode;
@@ -57,7 +59,7 @@ public class SchemaValidator {
               insertNode::getDataType,
               insertNode.isAligned());
     }
-
+    StepTracker.trace("fetchSchemaBeforeWrite", 1, startTime, System.nanoTime());
     if (!insertNode.validateAndSetSchema(schemaTree)) {
       throw new SemanticException("Data type mismatch");
     }

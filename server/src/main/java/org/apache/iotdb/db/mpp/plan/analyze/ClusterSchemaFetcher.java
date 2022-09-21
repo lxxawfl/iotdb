@@ -19,6 +19,7 @@
 package org.apache.iotdb.db.mpp.plan.analyze;
 
 import org.apache.iotdb.common.rpc.thrift.TSStatus;
+import org.apache.iotdb.commons.StepTracker;
 import org.apache.iotdb.commons.exception.IoTDBException;
 import org.apache.iotdb.commons.exception.MetadataException;
 import org.apache.iotdb.commons.path.PartialPath;
@@ -104,6 +105,7 @@ public class ClusterSchemaFetcher implements ISchemaFetcher {
   }
 
   private ClusterSchemaTree executeSchemaFetchQuery(SchemaFetchStatement schemaFetchStatement) {
+    long startTime = System.nanoTime();
     long queryId = SessionManager.getInstance().requestQueryId(false);
     try {
       ExecutionResult executionResult =
@@ -146,6 +148,7 @@ public class ClusterSchemaFetcher implements ISchemaFetcher {
       }
     } finally {
       coordinator.removeQueryExecution(queryId);
+      StepTracker.trace("executeSchemaFetchQuery", 1, startTime, System.nanoTime());
     }
   }
 

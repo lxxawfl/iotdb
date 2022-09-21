@@ -20,6 +20,7 @@
 package org.apache.iotdb.db.consensus.statemachine;
 
 import org.apache.iotdb.common.rpc.thrift.TSStatus;
+import org.apache.iotdb.commons.StepTracker;
 import org.apache.iotdb.commons.conf.CommonDescriptor;
 import org.apache.iotdb.consensus.common.DataSet;
 import org.apache.iotdb.consensus.common.request.IConsensusRequest;
@@ -70,11 +71,14 @@ public class SchemaRegionStateMachine extends BaseStateMachine {
   @Override
   public TSStatus write(IConsensusRequest request) {
     logger.info("Execute write plan in SchemaRegionStateMachine");
+    long startTime = System.nanoTime();
     try {
       return getPlanNode(request).accept(new SchemaExecutionVisitor(), schemaRegion);
     } catch (IllegalArgumentException e) {
       logger.error(e.getMessage(), e);
       return new TSStatus(TSStatusCode.INTERNAL_SERVER_ERROR.getStatusCode());
+    } finally {
+      StepTracker.trace("WriteSchemaRegion", 1, startTime, System.nanoTime());
     }
   }
 

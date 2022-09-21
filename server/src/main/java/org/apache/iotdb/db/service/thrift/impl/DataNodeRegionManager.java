@@ -23,6 +23,7 @@ import org.apache.iotdb.common.rpc.thrift.TDataNodeLocation;
 import org.apache.iotdb.common.rpc.thrift.TEndPoint;
 import org.apache.iotdb.common.rpc.thrift.TRegionReplicaSet;
 import org.apache.iotdb.common.rpc.thrift.TSStatus;
+import org.apache.iotdb.commons.StepTracker;
 import org.apache.iotdb.commons.conf.IoTDBConstant;
 import org.apache.iotdb.commons.consensus.ConsensusGroupId;
 import org.apache.iotdb.commons.consensus.DataRegionId;
@@ -92,8 +93,10 @@ public class DataNodeRegionManager {
     if (planNode instanceof InsertNode) {
       return executeDataInsert((DataRegionId) groupId, (InsertNode) planNode);
     } else {
+      long startTime = System.nanoTime();
       TSendPlanNodeResp response = new TSendPlanNodeResp();
       ConsensusWriteResponse writeResponse = executePlanNodeInConsensusLayer(groupId, planNode);
+      StepTracker.trace("executePlanNode", 1, startTime, System.nanoTime());
       // TODO need consider more status
       if (writeResponse.getStatus() != null) {
         response.setAccepted(
@@ -125,7 +128,9 @@ public class DataNodeRegionManager {
     dataRegionLockMap.get(dataRegionId).readLock().lock();
     try {
       try {
+        long startTime = System.nanoTime();
         SchemaValidator.validate(insertNode);
+        StepTracker.trace("SchemaValidator.validate", 1, startTime, System.nanoTime());
       } catch (SemanticException e) {
         response.setAccepted(false);
         response.setMessage(e.getMessage());
