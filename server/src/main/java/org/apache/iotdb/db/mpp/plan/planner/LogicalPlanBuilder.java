@@ -20,6 +20,7 @@
 package org.apache.iotdb.db.mpp.plan.planner;
 
 import org.apache.iotdb.common.rpc.thrift.TSchemaNode;
+import org.apache.iotdb.commons.StepTracker;
 import org.apache.iotdb.commons.exception.IllegalPathException;
 import org.apache.iotdb.commons.path.PartialPath;
 import org.apache.iotdb.commons.path.PathPatternTree;
@@ -780,6 +781,7 @@ public class LogicalPlanBuilder {
       List<String> storageGroupList,
       PathPatternTree patternTree,
       Map<Integer, Template> templateMap) {
+    long startTime = System.nanoTime();
     PartialPath storageGroupPath;
     for (String storageGroup : storageGroupList) {
       try {
@@ -801,6 +803,7 @@ public class LogicalPlanBuilder {
         throw new RuntimeException(e);
       }
     }
+    StepTracker.trace("planSchemaFetchSource", 1, startTime, System.nanoTime());
     return this;
   }
 
