@@ -205,8 +205,7 @@ public class ConfigNodeDescriptor {
       conf.setTimePartitionInterval(
           Long.parseLong(
               properties.getProperty(
-                  "time_partition_interval_for_routing",
-                  String.valueOf(conf.getTimePartitionInterval()))));
+                  "time_partition_interval", String.valueOf(conf.getTimePartitionInterval()))));
 
       conf.setSchemaReplicationFactor(
           Integer.parseInt(
