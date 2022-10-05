@@ -243,6 +243,7 @@ public abstract class DeltaBinaryDecoder extends Decoder {
           for (int j = 0; j < packWidth; j++) {
             temp = (pos + packWidth - 1 - j) / 8;
             int bit = BytesUtils.getByteN(deltaBuf[temp], pos + packWidth - 1 - j);
+            // 的确如果这样一位位地比较，就没有加速意义了。
             v = BytesUtils.setLongN(v, j, bit);
           }
 
