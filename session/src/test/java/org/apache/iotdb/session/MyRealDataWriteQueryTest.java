@@ -17,6 +17,7 @@ import org.apache.iotdb.jdbc.Config;
 import org.apache.iotdb.rpc.IoTDBConnectionException;
 import org.apache.iotdb.rpc.StatementExecutionException;
 import org.apache.iotdb.session.SessionDataSet.DataIterator;
+import org.apache.iotdb.tsfile.common.conf.TSFileDescriptor;
 import org.apache.iotdb.tsfile.file.metadata.enums.TSDataType;
 import org.junit.After;
 import org.junit.Assert;
@@ -51,22 +52,26 @@ public class MyRealDataWriteQueryTest {
   private static long total_time_length =
       dataMaxTime - dataMinTime; // in corresponding timestamp precision
   private static int total_point_number = 89844; // 1200000;
-  private static int iotdb_chunk_point_size = 100;
+  private static int iotdb_chunk_point_size = 50;
   private static long chunkAvgTimeLen =
       (long) Math
           .ceil(total_time_length / Math.ceil(total_point_number * 1.0 / iotdb_chunk_point_size));
   private static String filePath = "D:\\github\\m4-lsm\\iotdb\\session\\src\\test\\java\\org\\apache\\iotdb\\session\\BallSpeedSmallData.csv";
-  private static int deletePercentage = 0; // 0 means no deletes. 0-100
-  private static int deleteLenPercentage = 0; // 0-100 每次删除的时间长度，用chunkAvgTimeLen的百分比表示
+  private static int deletePercentage = 2; // 0 means no deletes. 0-100
+  private static int deleteLenPercentage = 50; // 0-100 每次删除的时间长度，用chunkAvgTimeLen的百分比表示
   private static int timeIdx = 0;   // 时间戳idx，从0开始
   private static int valueIdx = 1;   // 值idx，从0开始
 
   @Before
   public void setUp() throws Exception {
     config.setEnableCPV(true);
-
-    config.setCompactionStrategy(CompactionStrategy.NO_COMPACTION);
     config.setTimestampPrecision(timestamp_precision);
+    config.setAvgSeriesPointNumberThreshold(100);
+    config.setUnSeqTsFileSize(1073741824);
+    config.setSeqTsFileSize(1073741824);
+    config.setCompactionStrategy(CompactionStrategy.NO_COMPACTION);
+    config.setEnableUnseqCompaction(false);
+    TSFileDescriptor.getInstance().getConfig().setPageSizeInByte(1073741824);
 
     EnvironmentUtils.envSetUp();
     Class.forName(Config.JDBC_DRIVER_NAME);
