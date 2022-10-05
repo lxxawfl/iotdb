@@ -2,6 +2,7 @@ package org.apache.iotdb.session;
 
 import static org.junit.Assert.assertEquals;
 
+import com.nimbusds.jose.util.ByteUtils;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -19,6 +20,7 @@ import org.apache.iotdb.rpc.StatementExecutionException;
 import org.apache.iotdb.session.SessionDataSet.DataIterator;
 import org.apache.iotdb.tsfile.common.conf.TSFileDescriptor;
 import org.apache.iotdb.tsfile.file.metadata.enums.TSDataType;
+import org.apache.iotdb.tsfile.utils.BytesUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -48,10 +50,10 @@ public class MyRealDataWriteQueryTest {
   private static String timestamp_precision = "ns"; // ns, us, ms
   // used to bound tqs random position
   private static long dataMinTime = 0;
-  private static long dataMaxTime = 46247058071L;// 617426057626L;
+  private static long dataMaxTime = 511483966L;// 617426057626L;
   private static long total_time_length =
       dataMaxTime - dataMinTime; // in corresponding timestamp precision
-  private static int total_point_number = 89844; // 1200000;
+  private static int total_point_number = 1000; // 1200000;
   private static int iotdb_chunk_point_size = 50;
   private static long chunkAvgTimeLen =
       (long) Math

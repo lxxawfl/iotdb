@@ -179,11 +179,14 @@ public abstract class DeltaBinaryDecoder extends Decoder {
      */
     private long minDeltaBase;
 
+    private boolean enableRegularityTimeDecode;
     private long regularTimeInterval;
-    private byte[] decodedRegularTimeInterval; // it depends on minDeltaBase and bitWidth of each pack
+    private byte[] encodedRegularTimeInterval; // it depends on minDeltaBase and bitWidth of each pack
 
     public LongDeltaDecoder() {
       super();
+      this.enableRegularityTimeDecode = TSFileDescriptor.getInstance().getConfig()
+          .isEnableRegularityTimeDecode();
       this.regularTimeInterval = TSFileDescriptor.getInstance().getConfig()
           .getRegularTimeInterval();
     }
@@ -213,15 +216,43 @@ public abstract class DeltaBinaryDecoder extends Decoder {
       count++;
       readHeader(buffer);
 
+      previous = firstValue;
+      readIntTotalCount = packNum;
+      nextReadIndex = 0;
+
       encodingLength = ceil(packNum * packWidth);
       deltaBuf = new byte[encodingLength];
       buffer.get(deltaBuf);
       allocateDataArray();
 
-      previous = firstValue;
-      readIntTotalCount = packNum;
-      nextReadIndex = 0;
-      readPack();
+      if (enableRegularityTimeDecode) {
+        // TODO encode regular time interval
+        long newDelta = regularTimeInterval - minDeltaBase;
+        int bitWidthToByteNum = ceil(packWidth);
+        encodedRegularTimeInterval = new byte[bitWidthToByteNum];
+        BytesUtils.longToBytes(newDelta, encodedRegularTimeInterval, 0, packWidth);
+
+        for (int i = 0; i < packNum; i++) {
+          // TODO (1) extract bits from deltaBuf,
+          //  (2) compare bits with encodedRegularTimeInterval,
+          //  (3) equal to reuse, else to convert
+
+          long v = 0;
+          int temp = 0;
+          int pos = packWidth * i;
+          for (int j = 0; j < packWidth; j++) {
+            temp = (pos + packWidth - 1 - j) / 8;
+            int bit = BytesUtils.getByteN(deltaBuf[temp], pos + packWidth - 1 - j);
+            v = BytesUtils.setLongN(v, j, bit);
+          }
+
+          data[i] = previous + minDeltaBase + v;
+          previous = data[i];
+        }
+      } else { // without regularity-aware decoding
+        readPack();
+      }
+
       return firstValue;
     }
 
