@@ -229,21 +229,25 @@ public abstract class DeltaBinaryDecoder extends Decoder {
           //  (2) compare bits with encodedRegularTimeInterval,
           //  (3) equal to reuse, else to convert
 
-          boolean equal = true;
-          int pos = i * bitWidthToByteNum;
-          for (int j = 0; j < bitWidthToByteNum; j++) { // compare encoded bytes
-            byte regular = encodedRegularTimeInterval[j];
-            byte data = deltaBuf[pos + j];
-            if (regular != data) {
-              equal = false;
-              break;
-            }
-          }
-          if (equal) {
-            data[i] = previous + regularTimeInterval;
+          if (packWidth == 0) {
+            data[i] = previous + minDeltaBase; // v=0
           } else {
-            long v = BytesUtils.bytesToLong(deltaBuf, packWidth * i, packWidth);
-            data[i] = previous + minDeltaBase + v;
+            boolean equal = true;
+            int pos = i * bitWidthToByteNum;
+            for (int j = 0; j < bitWidthToByteNum; j++) { // compare encoded bytes
+              byte regular = encodedRegularTimeInterval[j];
+              byte data = deltaBuf[pos + j];
+              if (regular != data) {
+                equal = false;
+                break;
+              }
+            }
+            if (equal) {
+              data[i] = previous + regularTimeInterval;
+            } else {
+              long v = BytesUtils.bytesToLong(deltaBuf, packWidth * i, packWidth);
+              data[i] = previous + minDeltaBase + v;
+            }
           }
           previous = data[i];
         }

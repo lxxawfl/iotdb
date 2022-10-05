@@ -46,20 +46,26 @@ public class MyRealDataWriteQueryTest {
   private static TSDataType tsDataType = TSDataType.INT64; // TSDataType.DOUBLE;
   private static String timestamp_precision = "ns"; // ns, us, ms
   // used to bound tqs random position
-  private static long dataMinTime = 0;
-  private static long dataMaxTime = 617426057626L; // 511483966L;// 617426057626L;
+  private static long dataMinTime =
+      1329965999881042200L; // 1329965998981025700L;//1329955200008812200L;//0;
+  private static long dataMaxTime =
+      1329965999991045200L; // 1329965999991045200L;//511483966L;// 617426057626L;
   private static long total_time_length =
       dataMaxTime - dataMinTime; // in corresponding timestamp precision
-  private static int total_point_number = 1200000; // 1000; // 1200000;
-  private static int iotdb_chunk_point_size = 100;
+  private static int total_point_number = 12; // 1200000;
+  private static int iotdb_chunk_point_size = 10;
   private static long chunkAvgTimeLen =
       (long)
           Math.ceil(
               total_time_length / Math.ceil(total_point_number * 1.0 / iotdb_chunk_point_size));
-  //  private static String filePath =
-  // "D:\\github\\m4-lsm\\iotdb\\session\\src\\test\\java\\org\\apache\\iotdb\\session\\BallSpeedSmallData.csv";
   private static String filePath =
-      "D:\\github\\m4-lsm\\M4-visualization-exp\\src\\main\\java\\org\\apache\\iotdb\\datasets\\BallSpeed.csv";
+      "D:\\github\\m4-lsm\\iotdb\\session\\src\\test\\java\\org\\apache\\iotdb\\session\\MF03SmallData.csv";
+  //    private static String filePath =
+  //
+  // "D:\\github\\m4-lsm\\iotdb\\session\\src\\test\\java\\org\\apache\\iotdb\\session\\BallSpeedSmallData.csv";
+  //  private static String filePath =
+  //
+  // "D:\\github\\m4-lsm\\M4-visualization-exp\\src\\main\\java\\org\\apache\\iotdb\\datasets\\BallSpeed.csv";
   private static int deletePercentage = 0; // 0 means no deletes. 0-100
   private static int deleteLenPercentage = 0; // 0-100 每次删除的时间长度，用chunkAvgTimeLen的百分比表示
   private static int timeIdx = 0; // 时间戳idx，从0开始
@@ -78,8 +84,9 @@ public class MyRealDataWriteQueryTest {
 
     TSFileDescriptor.getInstance().getConfig().setPageSizeInByte(1073741824);
 
-    TSFileDescriptor.getInstance().getConfig().setEnableRegularityTimeDecode(false);
-    TSFileDescriptor.getInstance().getConfig().setRegularTimeInterval(511996);
+    TSFileDescriptor.getInstance().getConfig().setEnableRegularityTimeDecode(true);
+    TSFileDescriptor.getInstance().getConfig().setRegularTimeInterval(10000900);
+    //    TSFileDescriptor.getInstance().getConfig().setRegularTimeInterval(511996);
 
     EnvironmentUtils.envSetUp(); // start after configuration settings
     Class.forName(Config.JDBC_DRIVER_NAME);
@@ -106,7 +113,7 @@ public class MyRealDataWriteQueryTest {
 
   @After
   public void tearDown() throws Exception {
-    EnvironmentUtils.cleanEnv(); // comment out the cleanAllDir()
+    EnvironmentUtils.cleanEnv();
   }
 
   /** Before writing data, make sure check the server parameter configurations. */
@@ -123,7 +130,7 @@ public class MyRealDataWriteQueryTest {
     // [tqs,tqe) range length, i.e., tqe-tqs
     long range = total_time_length;
     // w数量
-    int w = 1000;
+    int w = 2;
 
     System.out.println("[QueryData] query range=" + range);
     System.out.println("[QueryData] w=" + w);
@@ -196,26 +203,26 @@ public class MyRealDataWriteQueryTest {
     //    System.out.println(dataSet.getColumnNames());
     while (iterator.next()) { // this way avoid constructing rowRecord
       c++;
-      //      String ans;
-      //      if (approach.equals("mac")) {
-      //        ans =
-      //            String.format(
-      //                "%s,%s",
-      //                iterator.getString(1), // time
-      //                iterator.getString(2)); // M4
-      //      } else {
-      //        ans =
-      //            String.format(
-      //                "%s,%s,%s,%s,%s,%s,%s",
-      //                iterator.getString(1), // time
-      //                iterator.getString(2), // min_time
-      //                iterator.getString(3), // max_time
-      //                iterator.getString(4), // first_value
-      //                iterator.getString(5), // last_value
-      //                iterator.getString(6), // min_value & bottomTime
-      //                iterator.getString(7)); // max_value & topTime
-      //      }
-      //      System.out.println(ans);
+      String ans;
+      if (approach.equals("mac")) {
+        ans =
+            String.format(
+                "%s,%s",
+                iterator.getString(1), // time
+                iterator.getString(2)); // M4
+      } else {
+        ans =
+            String.format(
+                "%s,%s,%s,%s,%s,%s,%s",
+                iterator.getString(1), // time
+                iterator.getString(2), // min_time
+                iterator.getString(3), // max_time
+                iterator.getString(4), // first_value
+                iterator.getString(5), // last_value
+                iterator.getString(6), // min_value & bottomTime
+                iterator.getString(7)); // max_value & topTime
+      }
+      System.out.println(ans);
     }
     Assert.assertEquals(w, c);
 

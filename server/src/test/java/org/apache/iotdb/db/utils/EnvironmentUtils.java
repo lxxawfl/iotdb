@@ -154,7 +154,7 @@ public class EnvironmentUtils {
     MemTableManager.getInstance().close();
 
     // delete all directory
-    //    cleanAllDir();
+    cleanAllDir();
     config.setSeqTsFileSize(oldSeqTsFileSize);
     config.setUnSeqTsFileSize(oldUnSeqTsFileSize);
     config.setMemtableSizeThreshold(oldGroupSizeInByte);
