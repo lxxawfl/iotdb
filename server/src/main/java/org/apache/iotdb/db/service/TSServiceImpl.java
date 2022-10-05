@@ -720,7 +720,6 @@ public class TSServiceImpl implements TSIService.Iface {
     // start record execution time
     IOMonitor.setSQL(statement);
     queryCount.incrementAndGet();
-    long start = System.nanoTime();
     AUDIT_LOGGER.debug(
         "Session {} execute Query: {}", sessionManager.getCurrSessionId(), statement);
     long startTime = System.currentTimeMillis();
@@ -753,6 +752,8 @@ public class TSServiceImpl implements TSIService.Iface {
       if (plan instanceof QueryPlan) {
         ((QueryPlan) plan).setEnableRedirect(enableRedirect);
       }
+
+      long start = System.nanoTime();
       // create and cache dataset
       QueryDataSet newDataSet = createQueryDataSet(queryId, plan, fetchSize);
 
@@ -807,6 +808,10 @@ public class TSServiceImpl implements TSIService.Iface {
           }
         }
       }
+
+      IOMonitor.incTotalTime(System.nanoTime() - start);
+      IOMonitor.reset();
+
       resp.setQueryId(queryId);
 
       if (plan instanceof AlignByDevicePlan && config.isEnablePerformanceTracing()) {
@@ -829,9 +834,6 @@ public class TSServiceImpl implements TSIService.Iface {
       if (!(plan instanceof ShowQueryProcesslistPlan)) {
         queryTimeManager.unRegisterQuery(queryId);
       }
-
-      IOMonitor.incTotalTime(System.nanoTime() - start);
-      IOMonitor.reset();
       return resp;
     } catch (Exception e) {
       releaseQueryResourceNoExceptions(queryId);

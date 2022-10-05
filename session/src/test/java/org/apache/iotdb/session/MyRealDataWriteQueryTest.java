@@ -71,9 +71,13 @@ public class MyRealDataWriteQueryTest {
     config.setSeqTsFileSize(1073741824);
     config.setCompactionStrategy(CompactionStrategy.NO_COMPACTION);
     config.setEnableUnseqCompaction(false);
+    config.setEnableRegularityTimeDecode(true);
+    config.setRegularTimeInterval(511996);
+    config.setEnablePerformanceStat(false);
+
     TSFileDescriptor.getInstance().getConfig().setPageSizeInByte(1073741824);
 
-    EnvironmentUtils.envSetUp();
+    EnvironmentUtils.envSetUp(); // start after configuration settings
     Class.forName(Config.JDBC_DRIVER_NAME);
 
     System.out.println("[WriteData] device=" + device);
@@ -118,7 +122,7 @@ public class MyRealDataWriteQueryTest {
     System.out.println("[QueryData] w=" + w);
 
     // 选择查询执行算法: 1: MAC, 2: MOC, 3: CPV
-    String approach = "cpv";
+    String approach = "mac";
     if (!approach.equals("mac") && !approach.equals("moc") && !approach.equals("cpv")) {
       throw new IOException("Approach wrong. Only accepts mac/moc/cpv");
     }
