@@ -19,17 +19,19 @@
 
 package org.apache.iotdb.tsfile.encoding.decoder;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
 import org.apache.iotdb.tsfile.common.conf.TSFileDescriptor;
 import org.apache.iotdb.tsfile.encoding.encoder.DeltaBinaryEncoder;
 import org.apache.iotdb.tsfile.file.metadata.enums.TSEncoding;
 import org.apache.iotdb.tsfile.utils.BytesUtils;
 import org.apache.iotdb.tsfile.utils.ReadWriteIOUtils;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
+
 /**
  * This class is a decoder for decoding the byte array that encoded by {@code
- * DeltaBinaryEncoder}.DeltaBinaryDecoder just supports integer and long values.<br> .
+ * DeltaBinaryEncoder}.DeltaBinaryDecoder just supports integer and long values.<br>
+ * .
  *
  * @see DeltaBinaryEncoder
  */
@@ -38,24 +40,16 @@ public abstract class DeltaBinaryDecoder extends Decoder {
   protected long count = 0;
   protected byte[] deltaBuf;
 
-  /**
-   * the first value in one pack.
-   */
+  /** the first value in one pack. */
   protected int readIntTotalCount = 0;
 
   protected int nextReadIndex = 0;
-  /**
-   * max bit length of all value in a pack.
-   */
+  /** max bit length of all value in a pack. */
   protected int packWidth;
-  /**
-   * data number in this pack.
-   */
+  /** data number in this pack. */
   protected int packNum;
 
-  /**
-   * how many bytes data takes after encoding.
-   */
+  /** how many bytes data takes after encoding. */
   protected int encodingLength;
 
   public DeltaBinaryDecoder() {
@@ -88,9 +82,7 @@ public abstract class DeltaBinaryDecoder extends Decoder {
     private int firstValue;
     private int[] data;
     private int previous;
-    /**
-     * minimum value for all difference.
-     */
+    /** minimum value for all difference. */
     private int minDeltaBase;
 
     public IntDeltaDecoder() {
@@ -174,21 +166,20 @@ public abstract class DeltaBinaryDecoder extends Decoder {
     private long firstValue;
     private long[] data;
     private long previous;
-    /**
-     * minimum value for all difference.
-     */
+    /** minimum value for all difference. */
     private long minDeltaBase;
 
     private boolean enableRegularityTimeDecode;
     private long regularTimeInterval;
-    private byte[] encodedRegularTimeInterval; // it depends on minDeltaBase and bitWidth of each pack
+    private byte[]
+        encodedRegularTimeInterval; // it depends on minDeltaBase and bitWidth of each pack
 
     public LongDeltaDecoder() {
       super();
-      this.enableRegularityTimeDecode = TSFileDescriptor.getInstance().getConfig()
-          .isEnableRegularityTimeDecode();
-      this.regularTimeInterval = TSFileDescriptor.getInstance().getConfig()
-          .getRegularTimeInterval();
+      this.enableRegularityTimeDecode =
+          TSFileDescriptor.getInstance().getConfig().isEnableRegularityTimeDecode();
+      this.regularTimeInterval =
+          TSFileDescriptor.getInstance().getConfig().getRegularTimeInterval();
     }
 
     /**
@@ -228,7 +219,8 @@ public abstract class DeltaBinaryDecoder extends Decoder {
       if (enableRegularityTimeDecode) {
         // TODO encode regular time interval
         long newDelta = regularTimeInterval - minDeltaBase;
-        int bitWidthToByteNum = ceil(packWidth);
+        int bitWidthToByteNum =
+            ceil(packWidth); // packWidth has been made to be a multiple of 8 when encoding
         encodedRegularTimeInterval = new byte[bitWidthToByteNum];
         BytesUtils.longToBytes(newDelta, encodedRegularTimeInterval, 0, packWidth);
 
@@ -237,17 +229,22 @@ public abstract class DeltaBinaryDecoder extends Decoder {
           //  (2) compare bits with encodedRegularTimeInterval,
           //  (3) equal to reuse, else to convert
 
-          long v = 0;
-          int temp = 0;
-          int pos = packWidth * i;
-          for (int j = 0; j < packWidth; j++) {
-            temp = (pos + packWidth - 1 - j) / 8;
-            int bit = BytesUtils.getByteN(deltaBuf[temp], pos + packWidth - 1 - j);
-            // 的确如果这样一位位地比较，就没有加速意义了。
-            v = BytesUtils.setLongN(v, j, bit);
+          boolean equal = true;
+          int pos = i * bitWidthToByteNum;
+          for (int j = 0; j < bitWidthToByteNum; j++) { // compare encoded bytes
+            byte regular = encodedRegularTimeInterval[j];
+            byte data = deltaBuf[pos + j];
+            if (regular != data) {
+              equal = false;
+              break;
+            }
           }
-
-          data[i] = previous + minDeltaBase + v;
+          if (equal) {
+            data[i] = previous + regularTimeInterval;
+          } else {
+            long v = BytesUtils.bytesToLong(deltaBuf, packWidth * i, packWidth);
+            data[i] = previous + minDeltaBase + v;
+          }
           previous = data[i];
         }
       } else { // without regularity-aware decoding

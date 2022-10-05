@@ -19,6 +19,12 @@
 
 package org.apache.iotdb.tsfile.common.conf;
 
+import org.apache.iotdb.tsfile.common.constant.TsFileConstant;
+import org.apache.iotdb.tsfile.utils.Loader;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -27,10 +33,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Properties;
 import java.util.Set;
-import org.apache.iotdb.tsfile.common.constant.TsFileConstant;
-import org.apache.iotdb.tsfile.utils.Loader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /** TSFileDescriptor is used to load TSFileConfig and provide configure information. */
 public class TSFileDescriptor {
@@ -105,12 +107,18 @@ public class TSFileDescriptor {
       properties.load(inputStream);
       conf.setEnableRegularityTimeDecode(
           Boolean.parseBoolean(
-              properties.getProperty("enable_regularity_time_decode",
-                  Boolean.toString(conf.isEnableRegularityTimeDecode())).trim()));
+              properties
+                  .getProperty(
+                      "enable_regularity_time_decode",
+                      Boolean.toString(conf.isEnableRegularityTimeDecode()))
+                  .trim()));
 
-      conf.setRegularTimeInterval(Long.parseLong(properties
-          .getProperty("regular_time_interval", Long.toString(conf.getRegularTimeInterval()))
-          .trim()));
+      conf.setRegularTimeInterval(
+          Long.parseLong(
+              properties
+                  .getProperty(
+                      "regular_time_interval", Long.toString(conf.getRegularTimeInterval()))
+                  .trim()));
 
       conf.setGroupSizeInByte(
           Integer.parseInt(

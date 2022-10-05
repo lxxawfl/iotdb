@@ -19,13 +19,16 @@
 
 package org.apache.iotdb.tsfile.encoding.encoder;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import org.apache.iotdb.tsfile.common.conf.TSFileDescriptor;
 import org.apache.iotdb.tsfile.file.metadata.enums.TSEncoding;
 import org.apache.iotdb.tsfile.utils.BytesUtils;
 import org.apache.iotdb.tsfile.utils.ReadWriteIOUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 /**
  * DeltaBinaryEncoder is a encoder for compressing data in type of integer and long. We adapt a
@@ -35,8 +38,8 @@ import org.slf4j.LoggerFactory;
  * Given an array which length is n, if all values in input data array are all positive and less
  * than 2^m, we need actually m*n, but not 32*n bits to store the array.
  *
- * <p>DeltaBinaryEncoder calculates difference between two adjacent points and record the minimum
- * of those difference values firstly. Then it saves two_diff value that difference minus minimum of
+ * <p>DeltaBinaryEncoder calculates difference between two adjacent points and record the minimum of
+ * those difference values firstly. Then it saves two_diff value that difference minus minimum of
  * them, to make sure all two_diff values are positive. Then it statistics the longest bit length
  * {@code m} it takes for each two_diff value, which means the bit length that maximum two_diff
  * value takes. Only the low m bits are saved into result byte array for all two_diff values.
@@ -73,9 +76,7 @@ public abstract class DeltaBinaryEncoder extends Encoder {
 
   protected abstract int calculateBitWidthsForDeltaBlockBuffer();
 
-  /**
-   * write all data into {@code encodingBlockBuffer}.
-   */
+  /** write all data into {@code encodingBlockBuffer}. */
   private void writeDataWithMinWidth() {
     for (int i = 0; i < writeIndex; i++) {
       writeValueToBytes(i);
@@ -101,6 +102,12 @@ public abstract class DeltaBinaryEncoder extends Encoder {
       calcTwoDiff(i);
     }
     writeWidth = calculateBitWidthsForDeltaBlockBuffer();
+
+    // TODO ceil writeWidth to be a multiple of 8
+    if (TSFileDescriptor.getInstance().getConfig().isEnableRegularityTimeDecode()) {
+      writeWidth = 8 * (int) Math.ceil((double) (writeWidth) / 8.0);
+    }
+
     writeHeaderToBytes();
     writeDataWithMinWidth();
 
@@ -108,9 +115,7 @@ public abstract class DeltaBinaryEncoder extends Encoder {
     writeIndex = -1;
   }
 
-  /**
-   * calling this method to flush all values which haven't encoded to result byte array.
-   */
+  /** calling this method to flush all values which haven't encoded to result byte array. */
   @Override
   public void flush(ByteArrayOutputStream out) {
     try {
@@ -164,7 +169,7 @@ public abstract class DeltaBinaryEncoder extends Encoder {
      * input a integer.
      *
      * @param value value to encode
-     * @param out   the ByteArrayOutputStream which data encode into
+     * @param out the ByteArrayOutputStream which data encode into
      */
     public void encodeValue(int value, ByteArrayOutputStream out) {
       if (writeIndex == -1) {
@@ -310,7 +315,7 @@ public abstract class DeltaBinaryEncoder extends Encoder {
      * input a integer or long value.
      *
      * @param value value to encode
-     * @param out   - the ByteArrayOutputStream which data encode into
+     * @param out - the ByteArrayOutputStream which data encode into
      */
     public void encodeValue(long value, ByteArrayOutputStream out) {
       if (writeIndex == -1) {

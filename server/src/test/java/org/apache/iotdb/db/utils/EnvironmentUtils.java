@@ -63,9 +63,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.fail;
 
-/**
- * This class is used for cleaning test environment in unit test and integration test
- */
+/** This class is used for cleaning test environment in unit test and integration test */
 public class EnvironmentUtils {
 
   private static final Logger logger = LoggerFactory.getLogger(EnvironmentUtils.class);
@@ -156,7 +154,7 @@ public class EnvironmentUtils {
     MemTableManager.getInstance().close();
 
     // delete all directory
-    cleanAllDir();
+    //    cleanAllDir();
     config.setSeqTsFileSize(oldSeqTsFileSize);
     config.setUnSeqTsFileSize(oldUnSeqTsFileSize);
     config.setMemtableSizeThreshold(oldGroupSizeInByte);
@@ -235,22 +233,19 @@ public class EnvironmentUtils {
     FileUtils.deleteDirectory(new File(dir));
   }
 
-  /**
-   * disable the system monitor</br> this function should be called before all code in the setup
-   */
+  /** disable the system monitor</br> this function should be called before all code in the setup */
   public static void closeStatMonitor() {
     config.setEnableStatMonitor(false);
   }
 
-  /**
-   * disable memory control</br> this function should be called before all code in the setup
-   */
+  /** disable memory control</br> this function should be called before all code in the setup */
   public static void envSetUp() {
     logger.warn("EnvironmentUtil setup...");
     IoTDBDescriptor.getInstance().getConfig().setThriftServerAwaitTimeForStopService(60);
     // we do not start 8181 port in test.
-//    IoTDBDescriptor.getInstance().getConfig().setEnableMetricService(false);
-//    IoTDBDescriptor.getInstance().getConfig().setAvgSeriesPointNumberThreshold(Integer.MAX_VALUE);
+    //    IoTDBDescriptor.getInstance().getConfig().setEnableMetricService(false);
+    //
+    // IoTDBDescriptor.getInstance().getConfig().setAvgSeriesPointNumberThreshold(Integer.MAX_VALUE);
     if (daemon == null) {
       daemon = new IoTDB();
     }
