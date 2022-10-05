@@ -579,10 +579,6 @@ public class IoTDBConfig {
 
   private boolean enableCPV = false;
 
-  private boolean enableRegularityTimeDecode = false;
-
-  private long regularTimeInterval = 1L;
-
   /**
    * The display of stat performance interval in ms.
    */
@@ -1629,28 +1625,12 @@ public class IoTDBConfig {
     return enableCPV;
   }
 
-  public boolean isEnableRegularityTimeDecode() {
-    return enableRegularityTimeDecode;
-  }
-
-  public long getRegularTimeInterval() {
-    return regularTimeInterval;
-  }
-
   public void setEnablePerformanceTracing(boolean enablePerformanceTracing) {
     this.enablePerformanceTracing = enablePerformanceTracing;
   }
 
   public void setEnableCPV(boolean enableCPV) {
     this.enableCPV = enableCPV;
-  }
-
-  public void setEnableRegularityTimeDecode(boolean enableRegularityTimeDecode) {
-    this.enableRegularityTimeDecode = enableRegularityTimeDecode;
-  }
-
-  public void setRegularTimeInterval(long regularTimeInterval) {
-    this.regularTimeInterval = regularTimeInterval;
   }
 
   public long getPerformanceStatDisplayInterval() {

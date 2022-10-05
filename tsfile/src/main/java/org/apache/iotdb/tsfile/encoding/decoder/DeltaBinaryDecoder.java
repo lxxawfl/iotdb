@@ -19,18 +19,17 @@
 
 package org.apache.iotdb.tsfile.encoding.decoder;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import org.apache.iotdb.tsfile.common.conf.TSFileDescriptor;
 import org.apache.iotdb.tsfile.encoding.encoder.DeltaBinaryEncoder;
 import org.apache.iotdb.tsfile.file.metadata.enums.TSEncoding;
 import org.apache.iotdb.tsfile.utils.BytesUtils;
 import org.apache.iotdb.tsfile.utils.ReadWriteIOUtils;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-
 /**
  * This class is a decoder for decoding the byte array that encoded by {@code
- * DeltaBinaryEncoder}.DeltaBinaryDecoder just supports integer and long values.<br>
- * .
+ * DeltaBinaryEncoder}.DeltaBinaryDecoder just supports integer and long values.<br> .
  *
  * @see DeltaBinaryEncoder
  */
@@ -39,16 +38,24 @@ public abstract class DeltaBinaryDecoder extends Decoder {
   protected long count = 0;
   protected byte[] deltaBuf;
 
-  /** the first value in one pack. */
+  /**
+   * the first value in one pack.
+   */
   protected int readIntTotalCount = 0;
 
   protected int nextReadIndex = 0;
-  /** max bit length of all value in a pack. */
+  /**
+   * max bit length of all value in a pack.
+   */
   protected int packWidth;
-  /** data number in this pack. */
+  /**
+   * data number in this pack.
+   */
   protected int packNum;
 
-  /** how many bytes data takes after encoding. */
+  /**
+   * how many bytes data takes after encoding.
+   */
   protected int encodingLength;
 
   public DeltaBinaryDecoder() {
@@ -81,7 +88,9 @@ public abstract class DeltaBinaryDecoder extends Decoder {
     private int firstValue;
     private int[] data;
     private int previous;
-    /** minimum value for all difference. */
+    /**
+     * minimum value for all difference.
+     */
     private int minDeltaBase;
 
     public IntDeltaDecoder() {
@@ -165,11 +174,18 @@ public abstract class DeltaBinaryDecoder extends Decoder {
     private long firstValue;
     private long[] data;
     private long previous;
-    /** minimum value for all difference. */
+    /**
+     * minimum value for all difference.
+     */
     private long minDeltaBase;
+
+    private long regularTimeInterval;
+    private byte[] decodedRegularTimeInterval; // it depends on minDeltaBase and bitWidth of each pack
 
     public LongDeltaDecoder() {
       super();
+      this.regularTimeInterval = TSFileDescriptor.getInstance().getConfig()
+          .getRegularTimeInterval();
     }
 
     /**

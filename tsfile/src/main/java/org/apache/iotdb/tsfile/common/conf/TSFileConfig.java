@@ -18,14 +18,16 @@
  */
 package org.apache.iotdb.tsfile.common.conf;
 
+import java.io.Serializable;
+import java.nio.charset.Charset;
 import org.apache.iotdb.tsfile.file.metadata.enums.CompressionType;
 import org.apache.iotdb.tsfile.fileSystem.FSType;
 
-import java.io.Serializable;
-import java.nio.charset.Charset;
-
 /** TSFileConfig is a configure class. Every variables is public and has default value. */
 public class TSFileConfig implements Serializable {
+
+  private boolean enableRegularityTimeDecode = false;
+  private long regularTimeInterval = 1L;
 
   /** encoding configuration */
   public static final int RLE_MIN_REPEATED_NUM = 8;
@@ -146,6 +148,22 @@ public class TSFileConfig implements Serializable {
   private int batchSize = 1000;
 
   public TSFileConfig() {}
+
+  public void setEnableRegularityTimeDecode(boolean enableRegularityTimeDecode) {
+    this.enableRegularityTimeDecode = enableRegularityTimeDecode;
+  }
+
+  public void setRegularTimeInterval(long regularTimeInterval) {
+    this.regularTimeInterval = regularTimeInterval;
+  }
+
+  public boolean isEnableRegularityTimeDecode() {
+    return enableRegularityTimeDecode;
+  }
+
+  public long getRegularTimeInterval() {
+    return regularTimeInterval;
+  }
 
   public int getGroupSizeInByte() {
     return groupSizeInByte;

@@ -71,11 +71,11 @@ public class MyRealDataWriteQueryTest {
     config.setSeqTsFileSize(1073741824);
     config.setCompactionStrategy(CompactionStrategy.NO_COMPACTION);
     config.setEnableUnseqCompaction(false);
-    config.setEnableRegularityTimeDecode(true);
-    config.setRegularTimeInterval(511996);
     config.setEnablePerformanceStat(false);
 
     TSFileDescriptor.getInstance().getConfig().setPageSizeInByte(1073741824);
+    TSFileDescriptor.getInstance().getConfig().setEnableRegularityTimeDecode(true);
+    TSFileDescriptor.getInstance().getConfig().setRegularTimeInterval(511996);
 
     EnvironmentUtils.envSetUp(); // start after configuration settings
     Class.forName(Config.JDBC_DRIVER_NAME);

@@ -539,15 +539,6 @@ public class IoTDBDescriptor {
           Boolean.parseBoolean(
               properties.getProperty("enable_CPV", Boolean.toString(conf.isEnableCPV())).trim()));
 
-      conf.setEnableRegularityTimeDecode(
-          Boolean.parseBoolean(
-              properties.getProperty("enable_regularity_time_decode",
-                  Boolean.toString(conf.isEnableRegularityTimeDecode())).trim()));
-
-      conf.setRegularTimeInterval(Long.parseLong(properties
-          .getProperty("regular_time_interval", Long.toString(conf.getRegularTimeInterval()))
-          .trim()));
-
       conf.setPerformanceStatDisplayInterval(
           Long.parseLong(
               properties
