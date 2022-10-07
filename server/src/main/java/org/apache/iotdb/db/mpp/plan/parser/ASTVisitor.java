@@ -81,6 +81,7 @@ import org.apache.iotdb.db.mpp.plan.statement.crud.DeleteDataStatement;
 import org.apache.iotdb.db.mpp.plan.statement.crud.InsertStatement;
 import org.apache.iotdb.db.mpp.plan.statement.crud.LoadTsFileStatement;
 import org.apache.iotdb.db.mpp.plan.statement.crud.QueryStatement;
+import org.apache.iotdb.db.mpp.plan.statement.dl.CreateModelStatement;
 import org.apache.iotdb.db.mpp.plan.statement.literal.BooleanLiteral;
 import org.apache.iotdb.db.mpp.plan.statement.literal.DoubleLiteral;
 import org.apache.iotdb.db.mpp.plan.statement.literal.Literal;
@@ -2956,5 +2957,12 @@ public class ASTVisitor extends IoTDBSqlParserBaseVisitor<Statement> {
           "Not support for this sql in DROPPIPESINK, please enter pipesinkname.");
     }
     return dropPipeSinkStatement;
+  }
+
+  @Override
+  public Statement visitCreateModel(IoTDBSqlParser.CreateModelContext ctx) {
+    CreateModelStatement createModelStatement = new CreateModelStatement();
+    createModelStatement.setQueryStatement((QueryStatement) visitSelectStatement(ctx.selectStatement()));
+    return createModelStatement;
   }
 }

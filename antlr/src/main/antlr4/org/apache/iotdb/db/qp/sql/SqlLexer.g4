@@ -211,6 +211,10 @@ FILL
     : F I L L
     ;
 
+MODEL
+    : M O D E L
+    ;
+
 FILE
     : F I L E
     ;

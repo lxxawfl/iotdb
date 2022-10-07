@@ -32,7 +32,7 @@ singleStatement
     ;
 
 statement
-    : ddlStatement | dmlStatement | dclStatement | utilityStatement | syncStatement
+    : ddlStatement | dmlStatement | dclStatement | utilityStatement | syncStatement | dlStatement
     ;
 
 ddlStatement
@@ -67,6 +67,10 @@ utilityStatement
 syncStatement
     : createPipeSink | showPipeSinkType | showPipeSink | dropPipeSink
     | createPipe | showPipe | stopPipe | startPipe | dropPipe;
+
+dlStatement
+    : createModel
+    ;
 
 /**
  * 2. Data Definition Language (DDL)
@@ -771,6 +775,9 @@ syncAttributeClauses
     : attributePair (COMMA attributePair)*
     ;
 
+createModel
+    : CREATE MODEL selectStatement
+    ;
 
 /**
  * 7. Common Clauses
