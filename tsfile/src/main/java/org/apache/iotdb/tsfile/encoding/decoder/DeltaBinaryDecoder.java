@@ -19,19 +19,19 @@
 
 package org.apache.iotdb.tsfile.encoding.decoder;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.iotdb.tsfile.common.conf.TSFileDescriptor;
 import org.apache.iotdb.tsfile.encoding.encoder.DeltaBinaryEncoder;
 import org.apache.iotdb.tsfile.file.metadata.enums.TSEncoding;
 import org.apache.iotdb.tsfile.utils.BytesUtils;
 import org.apache.iotdb.tsfile.utils.ReadWriteIOUtils;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-
 /**
  * This class is a decoder for decoding the byte array that encoded by {@code
- * DeltaBinaryEncoder}.DeltaBinaryDecoder just supports integer and long values.<br>
- * .
+ * DeltaBinaryEncoder}.DeltaBinaryDecoder just supports integer and long values.<br> .
  *
  * @see DeltaBinaryEncoder
  */
@@ -40,16 +40,24 @@ public abstract class DeltaBinaryDecoder extends Decoder {
   protected long count = 0;
   protected byte[] deltaBuf;
 
-  /** the first value in one pack. */
+  /**
+   * the first value in one pack.
+   */
   protected int readIntTotalCount = 0;
 
   protected int nextReadIndex = 0;
-  /** max bit length of all value in a pack. */
+  /**
+   * max bit length of all value in a pack.
+   */
   protected int packWidth;
-  /** data number in this pack. */
+  /**
+   * data number in this pack.
+   */
   protected int packNum;
 
-  /** how many bytes data takes after encoding. */
+  /**
+   * how many bytes data takes after encoding.
+   */
   protected int encodingLength;
 
   public DeltaBinaryDecoder() {
@@ -82,7 +90,9 @@ public abstract class DeltaBinaryDecoder extends Decoder {
     private int firstValue;
     private int[] data;
     private int previous;
-    /** minimum value for all difference. */
+    /**
+     * minimum value for all difference.
+     */
     private int minDeltaBase;
 
     public IntDeltaDecoder() {
@@ -166,7 +176,9 @@ public abstract class DeltaBinaryDecoder extends Decoder {
     private long firstValue;
     private long[] data;
     private long previous;
-    /** minimum value for all difference. */
+    /**
+     * minimum value for all difference.
+     */
     private long minDeltaBase;
 
     private boolean enableRegularityTimeDecode;
@@ -217,15 +229,47 @@ public abstract class DeltaBinaryDecoder extends Decoder {
       allocateDataArray();
 
       if (enableRegularityTimeDecode) {
-        // TODO encode regular time interval
-        long newDelta = regularTimeInterval - minDeltaBase;
-        int bitWidthToByteNum =
-            ceil(packWidth); // packWidth has been made to be a multiple of 8 when encoding
-        encodedRegularTimeInterval = new byte[bitWidthToByteNum];
-        BytesUtils.longToBytes(newDelta, encodedRegularTimeInterval, 0, packWidth);
+        // preprocess the regular time interval
+        long newRegularDelta = regularTimeInterval - minDeltaBase;
+        Map<Integer, byte[]> regularBytes = new HashMap<>();
+        for (int i = 0; i < 8; i++) {
+          // i is the starting position in the byte from high to low bits
+          int endPos = i + packWidth - 1; // starting from 0
+          int byteNum = endPos / 8 + 1;
+          byte[] byteArray = new byte[byteNum];
+          // put bit-packed newRegularDelta starting at position i,
+          //  and pad the front and back with newRegularDeltas
+
+          // 1. deal with padding the first byte
+          for (int x = i - 1; x >= 0; x--) {
+            // y is the position in the bit-packed newRegularDelta, 0->packWidth-1 from low to high bits
+            int y = (i - x - 1) % packWidth;
+            // get the bit indicated by y pos
+            int value = BytesUtils.getLongN(newRegularDelta, y);
+            // put the bit indicated by y pos into regularBytes
+            // setByte pos is from high to low starting from 0, corresponding to x
+            byteArray[0] = BytesUtils.setByteN(byteArray[0], x, value);
+          }
+
+          // 2. deal with putting newRegularDeltas
+          BytesUtils.longToBytes(newRegularDelta, byteArray, i, packWidth);
+
+          // 3. deal with padding the last byte
+          for (int x = endPos + 1; x < byteNum * 8; x++) {
+            // y is the position in the bit-packed newRegularDelta, 0->packWidth-1 from low to high bits
+            int y = packWidth - 1 - (x - endPos - 1) % packWidth;
+            // get the bit indicated by y pos
+            int value = BytesUtils.getLongN(newRegularDelta, y);
+            // put the bit indicated by y pos into regularBytes
+            // setByte pos is from high to low starting from 0, corresponding to x
+            byteArray[byteNum - 1] = BytesUtils.setByteN(byteArray[byteNum - 1], x, value);
+          }
+
+          regularBytes.put(i, byteArray);
+        }
 
         for (int i = 0; i < packNum; i++) {
-          // TODO (1) extract bits from deltaBuf,
+          //  (1) extract bits from deltaBuf,
           //  (2) compare bits with encodedRegularTimeInterval,
           //  (3) equal to reuse, else to convert
 
@@ -233,20 +277,25 @@ public abstract class DeltaBinaryDecoder extends Decoder {
             data[i] = previous + minDeltaBase; // v=0
           } else {
             boolean equal = true;
-            int pos = i * bitWidthToByteNum;
-            for (int j = 0; j < bitWidthToByteNum; j++) { // compare encoded bytes
-              byte regular = encodedRegularTimeInterval[j];
-              byte data = deltaBuf[pos + j];
+            int posByteIdx = i * packWidth / 8;
+            int pos = i * packWidth % 8; // the starting position in the byte from high to low bits
+            byte[] byteArray = regularBytes.get(pos);
+            for (int k = 0; k < byteArray.length; k++, posByteIdx++) {
+              byte regular = byteArray[k];
+              byte data = deltaBuf[posByteIdx];
               if (regular != data) {
                 equal = false;
                 break;
               }
             }
+
             if (equal) {
               data[i] = previous + regularTimeInterval;
+//              System.out.println("[RL]equals");
             } else {
               long v = BytesUtils.bytesToLong(deltaBuf, packWidth * i, packWidth);
               data[i] = previous + minDeltaBase + v;
+//              System.out.println("[RL]no");
             }
           }
           previous = data[i];

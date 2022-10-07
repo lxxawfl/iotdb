@@ -56,10 +56,11 @@ public class MySmallRealDataWriteQueryTest {
   private static int deleteLenPercentage = 0; // 0-100 每次删除的时间长度，用chunkAvgTimeLen的百分比表示
   private static int timeIdx = 0; // 时间戳idx，从0开始
   private static int valueIdx = 1; // 值idx，从0开始
-  private static int w = 2;
+  private static int w = 3;
   private static long range = total_time_length;
-  private static boolean enableRegularityTimeDecode = true;
+  private static boolean enableRegularityTimeDecode = false;
   private static long regularTimeInterval = 511996L;
+//  private static long regularTimeInterval = 511997L;
   private static String approach = "cpv"; // 选择查询执行算法: 1: MAC, 2: MOC, 3: CPV
 
   @Before

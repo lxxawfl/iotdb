@@ -103,10 +103,10 @@ public abstract class DeltaBinaryEncoder extends Encoder {
     }
     writeWidth = calculateBitWidthsForDeltaBlockBuffer();
 
-    // TODO ceil writeWidth to be a multiple of 8
-    if (TSFileDescriptor.getInstance().getConfig().isEnableRegularityTimeDecode()) {
-      writeWidth = 8 * (int) Math.ceil((double) (writeWidth) / 8.0);
-    }
+//    // TODO ceil writeWidth to be a multiple of 8
+//    if (TSFileDescriptor.getInstance().getConfig().isEnableRegularityTimeDecode()) {
+//      writeWidth = 8 * (int) Math.ceil((double) (writeWidth) / 8.0);
+//    }
 
     writeHeaderToBytes();
     writeDataWithMinWidth();
