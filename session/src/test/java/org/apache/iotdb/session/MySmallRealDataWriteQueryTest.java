@@ -22,7 +22,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class MyRealDataWriteQueryTest {
+public class MySmallRealDataWriteQueryTest {
 
   private static final IoTDBConfig config = IoTDBDescriptor.getInstance().getConfig();
 
@@ -44,14 +44,14 @@ public class MyRealDataWriteQueryTest {
   private static TSDataType tsDataType = TSDataType.INT64; // TSDataType.DOUBLE;
   private static String timestamp_precision = "ns"; // ns, us, ms
   private static long dataMinTime = 0;
-  private static long dataMaxTime = 617426057626L;
+  private static long dataMaxTime = 25599285703L;
   private static long total_time_length = dataMaxTime - dataMinTime;
-  private static int total_point_number = 1200000;
-  private static int iotdb_chunk_point_size = 100000;
+  private static int total_point_number = 50000;
+  private static int iotdb_chunk_point_size = 10000;
   private static long chunkAvgTimeLen = (long) Math
       .ceil(total_time_length / Math.ceil(total_point_number * 1.0 / iotdb_chunk_point_size));
   private static String filePath =
-      "D:\\github\\m4-lsm\\M4-visualization-exp\\src\\main\\java\\org\\apache\\iotdb\\datasets\\BallSpeed.csv";
+      "D:\\github\\m4-lsm\\iotdb\\session\\src\\test\\java\\org\\apache\\iotdb\\session\\BallSpeedSmallData.csv";
   private static int deletePercentage = 0; // 0 means no deletes. 0-100
   private static int deleteLenPercentage = 0; // 0-100 每次删除的时间长度，用chunkAvgTimeLen的百分比表示
   private static int timeIdx = 0; // 时间戳idx，从0开始
