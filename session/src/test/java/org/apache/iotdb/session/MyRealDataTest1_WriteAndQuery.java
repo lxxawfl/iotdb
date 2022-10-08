@@ -1,16 +1,15 @@
 package org.apache.iotdb.session;
 
-import org.apache.iotdb.db.conf.IoTDBConfig;
-import org.apache.iotdb.db.conf.IoTDBDescriptor;
-import org.apache.iotdb.rpc.IoTDBConnectionException;
-import org.apache.iotdb.rpc.StatementExecutionException;
-import org.apache.iotdb.session.SessionDataSet.DataIterator;
-import org.apache.iotdb.tsfile.file.metadata.enums.TSDataType;
-
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import static org.apache.iotdb.tsfile.common.constant.TsFileConstant.allRegularBytesSize;
+import static org.apache.iotdb.tsfile.common.constant.TsFileConstant.byteArrayLengthStatistics;
+import static org.apache.iotdb.tsfile.common.constant.TsFileConstant.countForHitNewDeltas;
+import static org.apache.iotdb.tsfile.common.constant.TsFileConstant.countForNotHitNewDeltas;
+import static org.apache.iotdb.tsfile.common.constant.TsFileConstant.countForRegularEqual;
+import static org.apache.iotdb.tsfile.common.constant.TsFileConstant.countForRegularNOTEqual;
+import static org.apache.iotdb.tsfile.common.constant.TsFileConstant.countForRegularZero;
+import static org.apache.iotdb.tsfile.common.constant.TsFileConstant.prepareAllRegulars;
+import static org.apache.iotdb.tsfile.common.constant.TsFileConstant.regularNewDeltasStatistics;
+import static org.apache.iotdb.tsfile.common.constant.TsFileConstant.timeColumnTS2DIFFLoadBatchCost;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -20,18 +19,22 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.apache.iotdb.db.conf.IoTDBConfig;
+import org.apache.iotdb.db.conf.IoTDBDescriptor;
+import org.apache.iotdb.db.engine.compaction.CompactionStrategy;
+import org.apache.iotdb.db.utils.EnvironmentUtils;
+import org.apache.iotdb.jdbc.Config;
+import org.apache.iotdb.rpc.IoTDBConnectionException;
+import org.apache.iotdb.rpc.StatementExecutionException;
+import org.apache.iotdb.session.SessionDataSet.DataIterator;
+import org.apache.iotdb.tsfile.common.conf.TSFileDescriptor;
+import org.apache.iotdb.tsfile.file.metadata.enums.TSDataType;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-import static org.apache.iotdb.tsfile.common.constant.TsFileConstant.allRegularBytesSize;
-import static org.apache.iotdb.tsfile.common.constant.TsFileConstant.byteArrayLengthStatistics;
-import static org.apache.iotdb.tsfile.common.constant.TsFileConstant.countForHitNewDeltas;
-import static org.apache.iotdb.tsfile.common.constant.TsFileConstant.countForNotHitNewDeltas;
-import static org.apache.iotdb.tsfile.common.constant.TsFileConstant.countForRegularEqual;
-import static org.apache.iotdb.tsfile.common.constant.TsFileConstant.countForRegularNOTEqual;
-import static org.apache.iotdb.tsfile.common.constant.TsFileConstant.countForRegularNewDeltas;
-import static org.apache.iotdb.tsfile.common.constant.TsFileConstant.prepareAllRegulars;
-import static org.apache.iotdb.tsfile.common.constant.TsFileConstant.timeColumnTS2DIFFLoadBatchCost;
-
-public class MyRealDataQueryTest {
+public class MyRealDataTest1_WriteAndQuery {
 
   private static final IoTDBConfig config = IoTDBDescriptor.getInstance().getConfig();
 
@@ -48,69 +51,93 @@ public class MyRealDataQueryTest {
   private static final String queryFormat_UDF =
       "select M4(%1$s,'tqs'='%3$d','tqe'='%4$d','w'='%5$d') from %2$s where time>=%3$d and time<%4$d";
 
-  //  private static String device = "root.game";
-  //  private static String measurement = "s6";
-  //  private static TSDataType tsDataType = TSDataType.INT64; // TSDataType.DOUBLE;
-  //  private static String timestamp_precision = "ns"; // ns, us, ms
-  //  private static long dataMinTime = 0;
-  //  private static long dataMaxTime = 617426057626L;
-  //  private static long total_time_length = dataMaxTime - dataMinTime;
-  //  private static int total_point_number = 1200000;
-  //  private static int iotdb_chunk_point_size = 100000;
-  //  private static long chunkAvgTimeLen = (long) Math
-  //      .ceil(total_time_length / Math.ceil(total_point_number * 1.0 / iotdb_chunk_point_size));
-  //  private static String filePath =
-  //
-  // "D:\\github\\m4-lsm\\M4-visualization-exp\\src\\main\\java\\org\\apache\\iotdb\\datasets\\BallSpeed.csv";
-  //  private static int deletePercentage = 0; // 0 means no deletes. 0-100
-  //  private static int deleteLenPercentage = 0; // 0-100 每次删除的时间长度，用chunkAvgTimeLen的百分比表示
-  //  private static int timeIdx = 0; // 时间戳idx，从0开始
-  //  private static int valueIdx = 1; // 值idx，从0开始
-  //  private static int w = 2;
-  //  private static long range = total_time_length;
-  //  private static boolean enableRegularityTimeDecode = true;
-  //  private static long regularTimeInterval = 511996L;
-  //  private static String approach = "mac"; // 选择查询执行算法: 1: MAC, 2: MOC, 3: CPV
+//  private static String device = "root.game";
+//  private static String measurement = "s6";
+//  private static TSDataType tsDataType = TSDataType.INT64; // TSDataType.DOUBLE;
+//  private static String timestamp_precision = "ns"; // ns, us, ms
+//  private static long dataMinTime = 0;
+//  private static long dataMaxTime = 617426057626L;
+//  private static long total_time_length = dataMaxTime - dataMinTime;
+//  private static int total_point_number = 1200000;
+//  private static int iotdb_chunk_point_size = 100000;
+//  private static long chunkAvgTimeLen = (long) Math
+//      .ceil(total_time_length / Math.ceil(total_point_number * 1.0 / iotdb_chunk_point_size));
+//  private static String filePath =
+//      "D:\\github\\m4-lsm\\M4-visualization-exp\\src\\main\\java\\org\\apache\\iotdb\\datasets\\BallSpeed.csv";
+//  private static int deletePercentage = 0; // 0 means no deletes. 0-100
+//  private static int deleteLenPercentage = 0; // 0-100 每次删除的时间长度，用chunkAvgTimeLen的百分比表示
+//  private static int timeIdx = 0; // 时间戳idx，从0开始
+//  private static int valueIdx = 1; // 值idx，从0开始
+//  private static int w = 2;
+//  private static long range = total_time_length;
+//  private static boolean enableRegularityTimeDecode = true;
+//  private static long regularTimeInterval = 511996L;
+//  private static String approach = "mac"; // 选择查询执行算法: 1: MAC, 2: MOC, 3: CPV
 
-  //  private static String device = "root.debs2012";
-  //  private static String measurement = "mf03";
-  //  private static TSDataType tsDataType = TSDataType.INT64; // TSDataType.DOUBLE;
-  //  private static String timestamp_precision = "ns"; // ns, us, ms
-  //  private static long dataMinTime = 1329955200008812200L;
-  //  private static long dataMaxTime = 1329965999991045200L;
-  //  private static long total_time_length = dataMaxTime - dataMinTime;
-  //  private static int total_point_number = 1076102;
-  //  private static int iotdb_chunk_point_size = 100000;
-  //  private static long chunkAvgTimeLen = (long) Math
-  //      .ceil(total_time_length / Math.ceil(total_point_number * 1.0 / iotdb_chunk_point_size));
-  //  private static String filePath =
-  //
-  // "D:\\github\\m4-lsm\\M4-visualization-exp\\src\\main\\java\\org\\apache\\iotdb\\datasets\\MF03.csv";
-  //  private static int deletePercentage = 0; // 0 means no deletes. 0-100
-  //  private static int deleteLenPercentage = 0; // 0-100 每次删除的时间长度，用chunkAvgTimeLen的百分比表示
-  //  private static int timeIdx = 0; // 时间戳idx，从0开始
-  //  private static int valueIdx = 1; // 值idx，从0开始
-  //  private static int w = 2;
-  //  private static long range = total_time_length;
-  //  private static boolean enableRegularityTimeDecode = true;
-  //  private static long regularTimeInterval = 10000900L;
-  //  private static String approach = "mac"; // 选择查询执行算法: 1: MAC, 2: MOC, 3: CPV
+//  private static String device = "root.debs2012";
+//  private static String measurement = "mf03";
+//  private static TSDataType tsDataType = TSDataType.INT64; // TSDataType.DOUBLE;
+//  private static String timestamp_precision = "ns"; // ns, us, ms
+//  private static long dataMinTime = 1329955200008812200L;
+//  private static long dataMaxTime = 1329965999991045200L;
+//  private static long total_time_length = dataMaxTime - dataMinTime;
+//  private static int total_point_number = 1076102;
+//  private static int iotdb_chunk_point_size = 100000;
+//  private static long chunkAvgTimeLen = (long) Math
+//      .ceil(total_time_length / Math.ceil(total_point_number * 1.0 / iotdb_chunk_point_size));
+//  private static String filePath =
+//      "D:\\github\\m4-lsm\\M4-visualization-exp\\src\\main\\java\\org\\apache\\iotdb\\datasets\\MF03.csv";
+//  private static int deletePercentage = 0; // 0 means no deletes. 0-100
+//  private static int deleteLenPercentage = 0; // 0-100 每次删除的时间长度，用chunkAvgTimeLen的百分比表示
+//  private static int timeIdx = 0; // 时间戳idx，从0开始
+//  private static int valueIdx = 1; // 值idx，从0开始
+//  private static int w = 2;
+//  private static long range = total_time_length;
+//  private static boolean enableRegularityTimeDecode = true;
+//  private static long regularTimeInterval = 10000900L;
+//  private static String approach = "mac"; // 选择查询执行算法: 1: MAC, 2: MOC, 3: CPV
 
-  private static String device = "root.kobelco.trans.03.1090001603.2401604";
-  private static String measurement = "KOB_0002_00_67";
+//  private static String device = "root.kobelco.trans.03.1090001603.2401604";
+//  private static String measurement = "KOB_0002_00_67";
+//  private static TSDataType tsDataType = TSDataType.INT64; // TSDataType.DOUBLE;
+//  private static String timestamp_precision = "ms"; // ns, us, ms
+//  private static long dataMinTime = 1616805035973L;
+//  private static long dataMaxTime = 1627380839563L;
+//  private static long total_time_length = dataMaxTime - dataMinTime;
+//  private static int total_point_number = 1943180;
+//  private static int iotdb_chunk_point_size = 100000;
+//  private static long chunkAvgTimeLen =
+//      (long)
+//          Math.ceil(
+//              total_time_length / Math.ceil(total_point_number * 1.0 / iotdb_chunk_point_size));
+//  private static String filePath =
+//      "D:\\github\\m4-lsm\\M4-visualization-exp\\src\\main\\java\\org\\apache\\iotdb\\datasets\\KOB_2.csv";
+//  private static int deletePercentage = 0; // 0 means no deletes. 0-100
+//  private static int deleteLenPercentage = 0; // 0-100 每次删除的时间长度，用chunkAvgTimeLen的百分比表示
+//  private static int timeIdx = 0; // 时间戳idx，从0开始
+//  private static int valueIdx = 1; // 值idx，从0开始
+//  private static int w = 3;
+//  private static long range = total_time_length;
+//  private static boolean enableRegularityTimeDecode = true;
+//  private static long regularTimeInterval = 1000L;
+//  private static String approach = "mac"; // 选择查询执行算法: 1: MAC, 2: MOC, 3: CPV
+
+
+  private static String device = "root.sg1";
+  private static String measurement = "RcvTime";
   private static TSDataType tsDataType = TSDataType.INT64; // TSDataType.DOUBLE;
   private static String timestamp_precision = "ms"; // ns, us, ms
-  private static long dataMinTime = 1616805035973L;
-  private static long dataMaxTime = 1627380839563L;
+  private static long dataMinTime = 1616194494000L;
+  private static long dataMaxTime = 1642656230000L;
   private static long total_time_length = dataMaxTime - dataMinTime;
-  private static int total_point_number = 1943180;
+  private static int total_point_number = 1330764;
   private static int iotdb_chunk_point_size = 100000;
   private static long chunkAvgTimeLen =
       (long)
           Math.ceil(
               total_time_length / Math.ceil(total_point_number * 1.0 / iotdb_chunk_point_size));
   private static String filePath =
-      "D:\\github\\m4-lsm\\M4-visualization-exp\\src\\main\\java\\org\\apache\\iotdb\\datasets\\KOB_2.csv";
+      "D:\\github\\m4-lsm\\M4-visualization-exp\\src\\main\\java\\org\\apache\\iotdb\\datasets\\RcvTime.csv";
   private static int deletePercentage = 0; // 0 means no deletes. 0-100
   private static int deleteLenPercentage = 0; // 0-100 每次删除的时间长度，用chunkAvgTimeLen的百分比表示
   private static int timeIdx = 0; // 时间戳idx，从0开始
@@ -118,61 +145,64 @@ public class MyRealDataQueryTest {
   private static int w = 3;
   private static long range = total_time_length;
   private static boolean enableRegularityTimeDecode = true;
-  private static long regularTimeInterval = 1000L;
+  private static long regularTimeInterval = 2000L;
   private static String approach = "mac"; // 选择查询执行算法: 1: MAC, 2: MOC, 3: CPV
 
   @Before
   public void setUp() throws Exception {
-    //    config.setEnableCPV(true);
-    //    config.setTimestampPrecision(timestamp_precision);
-    //    config.setAvgSeriesPointNumberThreshold(iotdb_chunk_point_size);
-    //    config.setUnSeqTsFileSize(1073741824);
-    //    config.setSeqTsFileSize(1073741824);
-    //    config.setCompactionStrategy(CompactionStrategy.NO_COMPACTION);
-    //    config.setEnableUnseqCompaction(false);
-    //    config.setEnablePerformanceStat(false);
-    //
-    //    TSFileDescriptor.getInstance().getConfig()
-    //        .setEnableRegularityTimeDecode(enableRegularityTimeDecode);
-    //    TSFileDescriptor.getInstance().getConfig().setRegularTimeInterval(regularTimeInterval);
-    //    TSFileDescriptor.getInstance().getConfig().setPageSizeInByte(1073741824);
-    //
-    //    EnvironmentUtils.envSetUp(); // start after configuration settings
-    //    Class.forName(Config.JDBC_DRIVER_NAME);
-    //
-    //    System.out.println("[WriteData] device=" + device);
-    //    System.out.println("[WriteData] measurement=" + measurement);
-    //    System.out.println("[WriteData] dataType=" + tsDataType);
-    //    System.out.println("[WriteData] timestamp_precision=" + timestamp_precision);
-    //    System.out.println("[WriteData] dataMinTime=" + dataMinTime);
-    //    System.out.println("[WriteData] dataMaxTime=" + dataMaxTime);
-    //    System.out.println("[WriteData] total_time_length=" + total_time_length);
-    //    System.out.println("[WriteData] total_point_number=" + total_point_number);
-    //    System.out.println("[WriteData] iotdb_chunk_point_size=" + iotdb_chunk_point_size);
-    //    System.out.println("[WriteData] derived estimated chunkAvgTimeLen =" + chunkAvgTimeLen);
-    //    System.out.println("[WriteData] filePath=" + filePath);
-    //    System.out.println("[WriteData] deletePercentage=" + deletePercentage);
-    //    System.out.println("[WriteData] deleteLenPercentage=" + deleteLenPercentage);
-    //    System.out.println("[WriteData] timeIdx=" + timeIdx);
-    //    System.out.println("[WriteData] valueIdx=" + valueIdx);
-    //    System.out.println(
-    //        "[WriteData] enableRegularityTimeDecode="
-    //            + TSFileDescriptor.getInstance().getConfig().isEnableRegularityTimeDecode());
+    config.setEnableCPV(true);
+    config.setTimestampPrecision(timestamp_precision);
+    config.setAvgSeriesPointNumberThreshold(iotdb_chunk_point_size);
+    config.setUnSeqTsFileSize(1073741824);
+    config.setSeqTsFileSize(1073741824);
+    config.setCompactionStrategy(CompactionStrategy.NO_COMPACTION);
+    config.setEnableUnseqCompaction(false);
+    config.setEnablePerformanceStat(false);
+
+    TSFileDescriptor.getInstance()
+        .getConfig()
+        .setEnableRegularityTimeDecode(enableRegularityTimeDecode);
+    TSFileDescriptor.getInstance().getConfig().setRegularTimeInterval(regularTimeInterval);
+    TSFileDescriptor.getInstance().getConfig().setPageSizeInByte(1073741824);
+
+    EnvironmentUtils.envSetUp(); // start after configuration settings
+    Class.forName(Config.JDBC_DRIVER_NAME);
+
+    System.out.println("[WriteData] device=" + device);
+    System.out.println("[WriteData] measurement=" + measurement);
+    System.out.println("[WriteData] dataType=" + tsDataType);
+    System.out.println("[WriteData] timestamp_precision=" + timestamp_precision);
+    System.out.println("[WriteData] dataMinTime=" + dataMinTime);
+    System.out.println("[WriteData] dataMaxTime=" + dataMaxTime);
+    System.out.println("[WriteData] total_time_length=" + total_time_length);
+    System.out.println("[WriteData] total_point_number=" + total_point_number);
+    System.out.println("[WriteData] iotdb_chunk_point_size=" + iotdb_chunk_point_size);
+    System.out.println("[WriteData] derived estimated chunkAvgTimeLen =" + chunkAvgTimeLen);
+    System.out.println("[WriteData] filePath=" + filePath);
+    System.out.println("[WriteData] deletePercentage=" + deletePercentage);
+    System.out.println("[WriteData] deleteLenPercentage=" + deleteLenPercentage);
+    System.out.println("[WriteData] timeIdx=" + timeIdx);
+    System.out.println("[WriteData] valueIdx=" + valueIdx);
+    System.out.println(
+        "[WriteData] enableRegularityTimeDecode="
+            + TSFileDescriptor.getInstance().getConfig().isEnableRegularityTimeDecode());
   }
 
   @After
   public void tearDown() throws Exception {
-    //    EnvironmentUtils.cleanEnv();
+    EnvironmentUtils.cleanEnv();
   }
 
-  /** Before writing data, make sure check the server parameter configurations. */
+  /**
+   * Before writing data, make sure check the server parameter configurations.
+   */
   // Usage: java -jar WriteData-0.12.4.jar device measurement dataType timestamp_precision
   // total_time_length total_point_number iotdb_chunk_point_size filePath deleteFreq deleteLen
   // timeIdx valueIdx
   @Test
   public void test1() throws Exception {
-    //    System.out.println("writing data...");
-    //    writeData();
+    System.out.println("writing data...");
+    writeData();
 
     System.out.println("querying data...");
     System.out.println("[QueryData] query range=" + range);
@@ -323,30 +353,31 @@ public class MyRealDataQueryTest {
             + "p95="
             + df.format(p95));
 
-    System.out.println("Equal Num: " + countForRegularEqual.getN());
-    System.out.println("NOT Equal Num: " + countForRegularNOTEqual.getN());
+    System.out.println("Equal Num: " + countForRegularEqual);
+    System.out.println("NOT Equal Num: " + countForRegularNOTEqual);
+    System.out.println("zero Num: " + countForRegularZero);
 
     System.out.println("hit Num: " + countForHitNewDeltas.getN());
     System.out.println("NOT hit Num: " + countForNotHitNewDeltas.getN());
 
-    max = countForRegularNewDeltas.getMax();
-    min = countForRegularNewDeltas.getMin();
-    mean = countForRegularNewDeltas.getMean();
-    std = countForRegularNewDeltas.getStandardDeviation();
-    p25 = countForRegularNewDeltas.getPercentile(25);
-    p50 = countForRegularNewDeltas.getPercentile(50);
-    p75 = countForRegularNewDeltas.getPercentile(75);
-    p90 = countForRegularNewDeltas.getPercentile(90);
-    p95 = countForRegularNewDeltas.getPercentile(95);
+    max = regularNewDeltasStatistics.getMax();
+    min = regularNewDeltasStatistics.getMin();
+    mean = regularNewDeltasStatistics.getMean();
+    std = regularNewDeltasStatistics.getStandardDeviation();
+    p25 = regularNewDeltasStatistics.getPercentile(25);
+    p50 = regularNewDeltasStatistics.getPercentile(50);
+    p75 = regularNewDeltasStatistics.getPercentile(75);
+    p90 = regularNewDeltasStatistics.getPercentile(90);
+    p95 = regularNewDeltasStatistics.getPercentile(95);
     System.out.println(
-        "countForRegularNewDeltas_stats"
+        "regularNewDeltas_stats"
             + ": "
             + "num="
-            + countForRegularNewDeltas.getN()
+            + regularNewDeltasStatistics.getN()
             + ", "
             // num is inaccurate because I let alone the last chunk
             + "sum="
-            + df.format(countForRegularNewDeltas.getSum())
+            + df.format(regularNewDeltasStatistics.getSum())
             + "us,"
             + "mean="
             + df.format(mean)

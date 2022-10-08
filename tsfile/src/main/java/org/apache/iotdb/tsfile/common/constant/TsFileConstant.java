@@ -34,20 +34,21 @@ public class TsFileConstant {
 
   public static DescriptiveStatistics timeColumnTS2DIFFLoadBatchCost = new DescriptiveStatistics();
 
-  public static DescriptiveStatistics countForRegularEqual = new DescriptiveStatistics();
-  public static DescriptiveStatistics countForRegularNOTEqual = new DescriptiveStatistics();
-  public static DescriptiveStatistics countForRegularZero = new DescriptiveStatistics();
+  public static long countForRegularEqual = 0; // equal to regular
+  public static long countForRegularNOTEqual = 0; // not equal to regular
+  public static long countForRegularZero = 0; // packWidth=0 no need
 
-  public static DescriptiveStatistics countForRegularNewDeltas = new DescriptiveStatistics();
+  public static DescriptiveStatistics regularNewDeltasStatistics = new DescriptiveStatistics();
 
-  public static DescriptiveStatistics countForHitNewDeltas = new DescriptiveStatistics();
-  public static DescriptiveStatistics countForNotHitNewDeltas = new DescriptiveStatistics();
+  public static DescriptiveStatistics countForHitNewDeltas = new DescriptiveStatistics(); // allRegularBytes contains
+  public static DescriptiveStatistics countForNotHitNewDeltas = new DescriptiveStatistics(); // allRegularBytes not contains
 
-  public static DescriptiveStatistics byteArrayLengthStatistics = new DescriptiveStatistics();
+  public static DescriptiveStatistics byteArrayLengthStatistics = new DescriptiveStatistics(); // regular bytes length
 
-  public static DescriptiveStatistics allRegularBytesSize = new DescriptiveStatistics();
+  public static DescriptiveStatistics allRegularBytesSize = new DescriptiveStatistics(); // allRegularBytes map size
 
   public static DescriptiveStatistics prepareAllRegulars = new DescriptiveStatistics();
 
-  private TsFileConstant() {}
+  private TsFileConstant() {
+  }
 }

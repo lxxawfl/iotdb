@@ -18,6 +18,22 @@
  */
 package org.apache.iotdb.db.service;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.sql.SQLException;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.apache.iotdb.db.IOMonitor;
 import org.apache.iotdb.db.auth.AuthException;
 import org.apache.iotdb.db.auth.AuthorityChecker;
@@ -131,29 +147,13 @@ import org.apache.iotdb.tsfile.file.metadata.enums.TSDataType;
 import org.apache.iotdb.tsfile.file.metadata.enums.TSEncoding;
 import org.apache.iotdb.tsfile.read.common.Path;
 import org.apache.iotdb.tsfile.read.query.dataset.QueryDataSet;
-
-import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.sql.SQLException;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
-
-/** Thrift RPC implementation at server side. */
+/**
+ * Thrift RPC implementation at server side.
+ */
 public class TSServiceImpl implements TSIService.Iface {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TSServiceImpl.class);
@@ -327,7 +327,9 @@ public class TSServiceImpl implements TSIService.Iface {
     }
   }
 
-  /** release single operation resource */
+  /**
+   * release single operation resource
+   */
   public void releaseQueryResource(long queryId) throws StorageEngineException {
     sessionManager.releaseQueryResource(queryId);
   }
@@ -608,13 +610,13 @@ public class TSServiceImpl implements TSIService.Iface {
 
       return physicalPlan.isQuery()
           ? internalExecuteQueryStatement(
-              statement,
-              req.statementId,
-              physicalPlan,
-              req.fetchSize,
-              req.timeout,
-              sessionManager.getUsername(req.getSessionId()),
-              req.isEnableRedirectQuery())
+          statement,
+          req.statementId,
+          physicalPlan,
+          req.fetchSize,
+          req.timeout,
+          sessionManager.getUsername(req.getSessionId()),
+          req.isEnableRedirectQuery())
           : executeUpdateStatement(physicalPlan, req.getSessionId());
     } catch (InterruptedException e) {
       LOGGER.error(INFO_INTERRUPT_ERROR, req, e);
@@ -641,13 +643,13 @@ public class TSServiceImpl implements TSIService.Iface {
       //      System.out.println("====DEBUG====: fetchSize=" + req.fetchSize);
       return physicalPlan.isQuery()
           ? internalExecuteQueryStatement(
-              statement,
-              req.statementId,
-              physicalPlan,
-              req.fetchSize,
-              req.timeout,
-              sessionManager.getUsername(req.getSessionId()),
-              req.isEnableRedirectQuery())
+          statement,
+          req.statementId,
+          physicalPlan,
+          req.fetchSize,
+          req.timeout,
+          sessionManager.getUsername(req.getSessionId()),
+          req.isEnableRedirectQuery())
           : RpcUtils.getTSExecuteStatementResp(
               TSStatusCode.EXECUTE_STATEMENT_ERROR, "Statement is not a query statement.");
     } catch (InterruptedException e) {
@@ -669,7 +671,14 @@ public class TSServiceImpl implements TSIService.Iface {
         IOMonitor.print()
             + ". timeColumnTS2DIFFLoadBatchCost="
             + TsFileConstant.timeColumnTS2DIFFLoadBatchCost.getSum()
-            + "us");
+            + "us"
+//            + ". countForRegularEqual="
+//            + TsFileConstant.countForRegularEqual
+//            + ". countForRegularNOTEqual="
+//            + TsFileConstant.countForRegularNOTEqual
+//            + ". countForRegularZero="
+//            + TsFileConstant.countForRegularZero
+    );
     IOMonitor.finish();
     return ret;
   }
@@ -685,13 +694,13 @@ public class TSServiceImpl implements TSIService.Iface {
           processor.rawDataQueryReqToPhysicalPlan(req, sessionManager.getZoneId(req.sessionId));
       return physicalPlan.isQuery()
           ? internalExecuteQueryStatement(
-              "",
-              req.statementId,
-              physicalPlan,
-              req.fetchSize,
-              config.getQueryTimeoutThreshold(),
-              sessionManager.getUsername(req.sessionId),
-              req.isEnableRedirectQuery())
+          "",
+          req.statementId,
+          physicalPlan,
+          req.fetchSize,
+          config.getQueryTimeoutThreshold(),
+          sessionManager.getUsername(req.sessionId),
+          req.isEnableRedirectQuery())
           : RpcUtils.getTSExecuteStatementResp(
               TSStatusCode.EXECUTE_STATEMENT_ERROR, "Statement is not a query statement.");
     } catch (InterruptedException e) {
@@ -707,7 +716,7 @@ public class TSServiceImpl implements TSIService.Iface {
 
   /**
    * @param plan must be a plan for Query: FillQueryPlan, AggregationPlan, GroupByTimePlan, UDFPlan,
-   *     some AuthorPlan
+   *             some AuthorPlan
    */
   @SuppressWarnings({"squid:S3776", "squid:S1141"}) // Suppress high Cognitive Complexity warning
   private TSExecuteStatementResp internalExecuteQueryStatement(
@@ -719,8 +728,8 @@ public class TSServiceImpl implements TSIService.Iface {
       String username,
       boolean enableRedirect)
       throws QueryProcessException, SQLException, StorageEngineException,
-          QueryFilterOptimizationException, MetadataException, IOException, InterruptedException,
-          TException, AuthException {
+      QueryFilterOptimizationException, MetadataException, IOException, InterruptedException,
+      TException, AuthException {
 
     // start record execution time
     IOMonitor.setSQL(statement);
@@ -858,7 +867,9 @@ public class TSServiceImpl implements TSIService.Iface {
         dataSet.getDataTypes().stream().map(Enum::toString).collect(Collectors.toList()));
   }
 
-  /** get ResultSet schema */
+  /**
+   * get ResultSet schema
+   */
   private TSExecuteStatementResp getQueryColumnHeaders(PhysicalPlan physicalPlan, String username)
       throws AuthException, TException, QueryProcessException, MetadataException {
 
@@ -1127,10 +1138,12 @@ public class TSServiceImpl implements TSIService.Iface {
     return encoder;
   }
 
-  /** create QueryDataSet and buffer it for fetchResults */
+  /**
+   * create QueryDataSet and buffer it for fetchResults
+   */
   private QueryDataSet createQueryDataSet(long queryId, PhysicalPlan physicalPlan, int fetchSize)
       throws QueryProcessException, QueryFilterOptimizationException, StorageEngineException,
-          IOException, MetadataException, SQLException, TException, InterruptedException {
+      IOException, MetadataException, SQLException, TException, InterruptedException {
 
     QueryContext context = genQueryContext(queryId, physicalPlan.isDebug());
     if (physicalPlan instanceof QueryPlan) {
@@ -1189,7 +1202,7 @@ public class TSServiceImpl implements TSIService.Iface {
             statement, sessionManager.getZoneId(sessionId), DEFAULT_FETCH_SIZE);
     return physicalPlan.isQuery()
         ? RpcUtils.getTSExecuteStatementResp(
-            TSStatusCode.EXECUTE_STATEMENT_ERROR, "Statement is a query statement.")
+        TSStatusCode.EXECUTE_STATEMENT_ERROR, "Statement is a query statement.")
         : executeUpdateStatement(physicalPlan, sessionId);
   }
 
@@ -1619,7 +1632,9 @@ public class TSServiceImpl implements TSIService.Iface {
     return insertTabletPlan;
   }
 
-  /** construct one InsertMultiTabletPlan and process it */
+  /**
+   * construct one InsertMultiTabletPlan and process it
+   */
   public TSStatus insertTabletsInternal(TSInsertTabletsReq req) throws IllegalPathException {
     List<InsertTabletPlan> insertTabletPlanList = new ArrayList<>();
     InsertMultiTabletPlan insertMultiTabletPlan = new InsertMultiTabletPlan();
