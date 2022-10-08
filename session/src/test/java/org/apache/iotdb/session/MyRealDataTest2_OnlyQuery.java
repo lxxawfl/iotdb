@@ -28,8 +28,8 @@ import static org.apache.iotdb.tsfile.common.constant.TsFileConstant.countForNot
 import static org.apache.iotdb.tsfile.common.constant.TsFileConstant.countForRegularEqual;
 import static org.apache.iotdb.tsfile.common.constant.TsFileConstant.countForRegularNOTEqual;
 import static org.apache.iotdb.tsfile.common.constant.TsFileConstant.countForRegularZero;
-import static org.apache.iotdb.tsfile.common.constant.TsFileConstant.regularNewDeltasStatistics;
 import static org.apache.iotdb.tsfile.common.constant.TsFileConstant.prepareAllRegulars;
+import static org.apache.iotdb.tsfile.common.constant.TsFileConstant.regularNewDeltasStatistics;
 import static org.apache.iotdb.tsfile.common.constant.TsFileConstant.timeColumnTS2DIFFLoadBatchCost;
 
 public class MyRealDataTest2_OnlyQuery {

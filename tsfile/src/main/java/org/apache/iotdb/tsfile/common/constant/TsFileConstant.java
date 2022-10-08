@@ -40,15 +40,18 @@ public class TsFileConstant {
 
   public static DescriptiveStatistics regularNewDeltasStatistics = new DescriptiveStatistics();
 
-  public static DescriptiveStatistics countForHitNewDeltas = new DescriptiveStatistics(); // allRegularBytes contains
-  public static DescriptiveStatistics countForNotHitNewDeltas = new DescriptiveStatistics(); // allRegularBytes not contains
+  public static DescriptiveStatistics countForHitNewDeltas =
+      new DescriptiveStatistics(); // allRegularBytes contains
+  public static DescriptiveStatistics countForNotHitNewDeltas =
+      new DescriptiveStatistics(); // allRegularBytes not contains
 
-  public static DescriptiveStatistics byteArrayLengthStatistics = new DescriptiveStatistics(); // regular bytes length
+  public static DescriptiveStatistics byteArrayLengthStatistics =
+      new DescriptiveStatistics(); // regular bytes length
 
-  public static DescriptiveStatistics allRegularBytesSize = new DescriptiveStatistics(); // allRegularBytes map size
+  public static DescriptiveStatistics allRegularBytesSize =
+      new DescriptiveStatistics(); // allRegularBytes map size
 
   public static DescriptiveStatistics prepareAllRegulars = new DescriptiveStatistics();
 
-  private TsFileConstant() {
-  }
+  private TsFileConstant() {}
 }

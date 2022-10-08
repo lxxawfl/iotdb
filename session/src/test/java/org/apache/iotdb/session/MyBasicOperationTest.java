@@ -1,9 +1,11 @@
 package org.apache.iotdb.session;
 
+import org.apache.iotdb.tsfile.utils.BytesUtils;
+
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+
 import java.text.DecimalFormat;
 import java.util.Random;
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import org.apache.iotdb.tsfile.utils.BytesUtils;
 
 public class MyBasicOperationTest {
 
@@ -20,7 +22,7 @@ public class MyBasicOperationTest {
       int low = 0; // inclusive
       int high = 256; // exclusive
       int packNum = 128;
-      int packWidth = 8; //equal to one byte length
+      int packWidth = 8; // equal to one byte length
       byte[] buf = new byte[packNum];
       for (int i = 0; i < packNum; i++) {
         int v = r.nextInt(high - low) + low;
@@ -70,7 +72,8 @@ public class MyBasicOperationTest {
     double p90 = statistics.getPercentile(90);
     double p95 = statistics.getPercentile(95);
     String res =
-        name + "_stats"
+        name
+            + "_stats"
             + ": "
             + "num="
             + statistics.getN()
