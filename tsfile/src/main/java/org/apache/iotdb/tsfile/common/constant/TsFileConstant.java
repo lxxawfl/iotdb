@@ -18,6 +18,8 @@
  */
 package org.apache.iotdb.tsfile.common.constant;
 
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+
 public class TsFileConstant {
 
   public static final String TSFILE_SUFFIX = ".tsfile";
@@ -29,6 +31,23 @@ public class TsFileConstant {
   public static final char PATH_SEPARATOR_CHAR = '.';
   public static final String PATH_SEPARATER_NO_REGEX = "\\.";
   public static final char DOUBLE_QUOTE = '"';
+
+  public static DescriptiveStatistics timeColumnTS2DIFFLoadBatchCost = new DescriptiveStatistics();
+
+  public static DescriptiveStatistics countForRegularEqual = new DescriptiveStatistics();
+  public static DescriptiveStatistics countForRegularNOTEqual = new DescriptiveStatistics();
+  public static DescriptiveStatistics countForRegularZero = new DescriptiveStatistics();
+
+  public static DescriptiveStatistics countForRegularNewDeltas = new DescriptiveStatistics();
+
+  public static DescriptiveStatistics countForHitNewDeltas = new DescriptiveStatistics();
+  public static DescriptiveStatistics countForNotHitNewDeltas = new DescriptiveStatistics();
+
+  public static DescriptiveStatistics byteArrayLengthStatistics = new DescriptiveStatistics();
+
+  public static DescriptiveStatistics allRegularBytesSize = new DescriptiveStatistics();
+
+  public static DescriptiveStatistics prepareAllRegulars = new DescriptiveStatistics();
 
   private TsFileConstant() {}
 }

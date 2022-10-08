@@ -920,7 +920,7 @@ public class IoTDBConfig {
     this.enableMetricService = enableMetricService;
   }
 
-  void setDataDirs(String[] dataDirs) {
+  public void setDataDirs(String[] dataDirs) {
     this.dataDirs = dataDirs;
   }
 

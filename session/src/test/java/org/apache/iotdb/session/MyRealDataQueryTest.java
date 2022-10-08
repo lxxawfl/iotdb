@@ -2,13 +2,9 @@ package org.apache.iotdb.session;
 
 import org.apache.iotdb.db.conf.IoTDBConfig;
 import org.apache.iotdb.db.conf.IoTDBDescriptor;
-import org.apache.iotdb.db.engine.compaction.CompactionStrategy;
-import org.apache.iotdb.db.utils.EnvironmentUtils;
-import org.apache.iotdb.jdbc.Config;
 import org.apache.iotdb.rpc.IoTDBConnectionException;
 import org.apache.iotdb.rpc.StatementExecutionException;
 import org.apache.iotdb.session.SessionDataSet.DataIterator;
-import org.apache.iotdb.tsfile.common.conf.TSFileDescriptor;
 import org.apache.iotdb.tsfile.file.metadata.enums.TSDataType;
 
 import org.junit.After;
@@ -35,7 +31,7 @@ import static org.apache.iotdb.tsfile.common.constant.TsFileConstant.countForReg
 import static org.apache.iotdb.tsfile.common.constant.TsFileConstant.prepareAllRegulars;
 import static org.apache.iotdb.tsfile.common.constant.TsFileConstant.timeColumnTS2DIFFLoadBatchCost;
 
-public class MyRealDataWriteQueryTest {
+public class MyRealDataQueryTest {
 
   private static final IoTDBConfig config = IoTDBDescriptor.getInstance().getConfig();
 
@@ -52,29 +48,29 @@ public class MyRealDataWriteQueryTest {
   private static final String queryFormat_UDF =
       "select M4(%1$s,'tqs'='%3$d','tqe'='%4$d','w'='%5$d') from %2$s where time>=%3$d and time<%4$d";
 
-//    private static String device = "root.game";
-//    private static String measurement = "s6";
-//    private static TSDataType tsDataType = TSDataType.INT64; // TSDataType.DOUBLE;
-//    private static String timestamp_precision = "ns"; // ns, us, ms
-//    private static long dataMinTime = 0;
-//    private static long dataMaxTime = 617426057626L;
-//    private static long total_time_length = dataMaxTime - dataMinTime;
-//    private static int total_point_number = 1200000;
-//    private static int iotdb_chunk_point_size = 100000;
-//    private static long chunkAvgTimeLen = (long) Math
-//        .ceil(total_time_length / Math.ceil(total_point_number * 1.0 / iotdb_chunk_point_size));
-//    private static String filePath =
-//
-//   "D:\\github\\m4-lsm\\M4-visualization-exp\\src\\main\\java\\org\\apache\\iotdb\\datasets\\BallSpeed.csv";
-//    private static int deletePercentage = 0; // 0 means no deletes. 0-100
-//    private static int deleteLenPercentage = 0; // 0-100 每次删除的时间长度，用chunkAvgTimeLen的百分比表示
-//    private static int timeIdx = 0; // 时间戳idx，从0开始
-//    private static int valueIdx = 1; // 值idx，从0开始
-//    private static int w = 2;
-//    private static long range = total_time_length;
-//    private static boolean enableRegularityTimeDecode = false;
-//    private static long regularTimeInterval = 511996L;
-//    private static String approach = "mac"; // 选择查询执行算法: 1: MAC, 2: MOC, 3: CPV
+  //  private static String device = "root.game";
+  //  private static String measurement = "s6";
+  //  private static TSDataType tsDataType = TSDataType.INT64; // TSDataType.DOUBLE;
+  //  private static String timestamp_precision = "ns"; // ns, us, ms
+  //  private static long dataMinTime = 0;
+  //  private static long dataMaxTime = 617426057626L;
+  //  private static long total_time_length = dataMaxTime - dataMinTime;
+  //  private static int total_point_number = 1200000;
+  //  private static int iotdb_chunk_point_size = 100000;
+  //  private static long chunkAvgTimeLen = (long) Math
+  //      .ceil(total_time_length / Math.ceil(total_point_number * 1.0 / iotdb_chunk_point_size));
+  //  private static String filePath =
+  //
+  // "D:\\github\\m4-lsm\\M4-visualization-exp\\src\\main\\java\\org\\apache\\iotdb\\datasets\\BallSpeed.csv";
+  //  private static int deletePercentage = 0; // 0 means no deletes. 0-100
+  //  private static int deleteLenPercentage = 0; // 0-100 每次删除的时间长度，用chunkAvgTimeLen的百分比表示
+  //  private static int timeIdx = 0; // 时间戳idx，从0开始
+  //  private static int valueIdx = 1; // 值idx，从0开始
+  //  private static int w = 2;
+  //  private static long range = total_time_length;
+  //  private static boolean enableRegularityTimeDecode = true;
+  //  private static long regularTimeInterval = 511996L;
+  //  private static String approach = "mac"; // 选择查询执行算法: 1: MAC, 2: MOC, 3: CPV
 
   //  private static String device = "root.debs2012";
   //  private static String measurement = "mf03";
@@ -121,48 +117,47 @@ public class MyRealDataWriteQueryTest {
   private static int valueIdx = 1; // 值idx，从0开始
   private static int w = 3;
   private static long range = total_time_length;
-  private static boolean enableRegularityTimeDecode = false;
+  private static boolean enableRegularityTimeDecode = true;
   private static long regularTimeInterval = 1000L;
   private static String approach = "mac"; // 选择查询执行算法: 1: MAC, 2: MOC, 3: CPV
 
   @Before
   public void setUp() throws Exception {
-    config.setEnableCPV(true);
-    config.setTimestampPrecision(timestamp_precision);
-    config.setAvgSeriesPointNumberThreshold(iotdb_chunk_point_size);
-    config.setUnSeqTsFileSize(1073741824);
-    config.setSeqTsFileSize(1073741824);
-    config.setCompactionStrategy(CompactionStrategy.NO_COMPACTION);
-    config.setEnableUnseqCompaction(false);
-    config.setEnablePerformanceStat(false);
-
-    TSFileDescriptor.getInstance()
-        .getConfig()
-        .setEnableRegularityTimeDecode(enableRegularityTimeDecode);
-    TSFileDescriptor.getInstance().getConfig().setRegularTimeInterval(regularTimeInterval);
-    TSFileDescriptor.getInstance().getConfig().setPageSizeInByte(1073741824);
-
-    EnvironmentUtils.envSetUp(); // start after configuration settings
-    Class.forName(Config.JDBC_DRIVER_NAME);
-
-    System.out.println("[WriteData] device=" + device);
-    System.out.println("[WriteData] measurement=" + measurement);
-    System.out.println("[WriteData] dataType=" + tsDataType);
-    System.out.println("[WriteData] timestamp_precision=" + timestamp_precision);
-    System.out.println("[WriteData] dataMinTime=" + dataMinTime);
-    System.out.println("[WriteData] dataMaxTime=" + dataMaxTime);
-    System.out.println("[WriteData] total_time_length=" + total_time_length);
-    System.out.println("[WriteData] total_point_number=" + total_point_number);
-    System.out.println("[WriteData] iotdb_chunk_point_size=" + iotdb_chunk_point_size);
-    System.out.println("[WriteData] derived estimated chunkAvgTimeLen =" + chunkAvgTimeLen);
-    System.out.println("[WriteData] filePath=" + filePath);
-    System.out.println("[WriteData] deletePercentage=" + deletePercentage);
-    System.out.println("[WriteData] deleteLenPercentage=" + deleteLenPercentage);
-    System.out.println("[WriteData] timeIdx=" + timeIdx);
-    System.out.println("[WriteData] valueIdx=" + valueIdx);
-    System.out.println(
-        "[WriteData] enableRegularityTimeDecode="
-            + TSFileDescriptor.getInstance().getConfig().isEnableRegularityTimeDecode());
+    //    config.setEnableCPV(true);
+    //    config.setTimestampPrecision(timestamp_precision);
+    //    config.setAvgSeriesPointNumberThreshold(iotdb_chunk_point_size);
+    //    config.setUnSeqTsFileSize(1073741824);
+    //    config.setSeqTsFileSize(1073741824);
+    //    config.setCompactionStrategy(CompactionStrategy.NO_COMPACTION);
+    //    config.setEnableUnseqCompaction(false);
+    //    config.setEnablePerformanceStat(false);
+    //
+    //    TSFileDescriptor.getInstance().getConfig()
+    //        .setEnableRegularityTimeDecode(enableRegularityTimeDecode);
+    //    TSFileDescriptor.getInstance().getConfig().setRegularTimeInterval(regularTimeInterval);
+    //    TSFileDescriptor.getInstance().getConfig().setPageSizeInByte(1073741824);
+    //
+    //    EnvironmentUtils.envSetUp(); // start after configuration settings
+    //    Class.forName(Config.JDBC_DRIVER_NAME);
+    //
+    //    System.out.println("[WriteData] device=" + device);
+    //    System.out.println("[WriteData] measurement=" + measurement);
+    //    System.out.println("[WriteData] dataType=" + tsDataType);
+    //    System.out.println("[WriteData] timestamp_precision=" + timestamp_precision);
+    //    System.out.println("[WriteData] dataMinTime=" + dataMinTime);
+    //    System.out.println("[WriteData] dataMaxTime=" + dataMaxTime);
+    //    System.out.println("[WriteData] total_time_length=" + total_time_length);
+    //    System.out.println("[WriteData] total_point_number=" + total_point_number);
+    //    System.out.println("[WriteData] iotdb_chunk_point_size=" + iotdb_chunk_point_size);
+    //    System.out.println("[WriteData] derived estimated chunkAvgTimeLen =" + chunkAvgTimeLen);
+    //    System.out.println("[WriteData] filePath=" + filePath);
+    //    System.out.println("[WriteData] deletePercentage=" + deletePercentage);
+    //    System.out.println("[WriteData] deleteLenPercentage=" + deleteLenPercentage);
+    //    System.out.println("[WriteData] timeIdx=" + timeIdx);
+    //    System.out.println("[WriteData] valueIdx=" + valueIdx);
+    //    System.out.println(
+    //        "[WriteData] enableRegularityTimeDecode="
+    //            + TSFileDescriptor.getInstance().getConfig().isEnableRegularityTimeDecode());
   }
 
   @After
@@ -176,8 +171,8 @@ public class MyRealDataWriteQueryTest {
   // timeIdx valueIdx
   @Test
   public void test1() throws Exception {
-    System.out.println("writing data...");
-    writeData();
+    //    System.out.println("writing data...");
+    //    writeData();
 
     System.out.println("querying data...");
     System.out.println("[QueryData] query range=" + range);

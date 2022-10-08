@@ -24,9 +24,11 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.iotdb.tsfile.common.conf.TSFileDescriptor;
+import org.apache.iotdb.tsfile.common.constant.TsFileConstant;
 import org.apache.iotdb.tsfile.encoding.encoder.DeltaBinaryEncoder;
 import org.apache.iotdb.tsfile.file.metadata.enums.TSEncoding;
 import org.apache.iotdb.tsfile.utils.BytesUtils;
+import org.apache.iotdb.tsfile.utils.Pair;
 import org.apache.iotdb.tsfile.utils.ReadWriteIOUtils;
 
 /**
@@ -183,8 +185,11 @@ public abstract class DeltaBinaryDecoder extends Decoder {
 
     private boolean enableRegularityTimeDecode;
     private long regularTimeInterval;
-    private byte[]
-        encodedRegularTimeInterval; // it depends on minDeltaBase and bitWidth of each pack
+    //    private byte[]
+    //        encodedRegularTimeInterval; // it depends on minDeltaBase and bitWidth of each pack
+
+    private Map<Pair<Long, Integer>, Map<Integer, byte[]>> allRegularBytes =
+        new HashMap<>(); // <newRegularDelta,packWidth> -> (relativePos->bytes)
 
     public LongDeltaDecoder() {
       super();
@@ -214,6 +219,8 @@ public abstract class DeltaBinaryDecoder extends Decoder {
      * @return long value
      */
     protected long loadIntBatch(ByteBuffer buffer) {
+      long start = System.nanoTime();
+
       packNum = ReadWriteIOUtils.readInt(buffer);
       packWidth = ReadWriteIOUtils.readInt(buffer);
       count++;
@@ -229,80 +236,143 @@ public abstract class DeltaBinaryDecoder extends Decoder {
       allocateDataArray();
 
       if (enableRegularityTimeDecode) {
-        // preprocess the regular time interval
         long newRegularDelta = regularTimeInterval - minDeltaBase;
-        Map<Integer, byte[]> regularBytes = new HashMap<>();
-        for (int i = 0; i < 8; i++) {
-          // i is the starting position in the byte from high to low bits
-          int endPos = i + packWidth - 1; // starting from 0
-          int byteNum = endPos / 8 + 1;
-          byte[] byteArray = new byte[byteNum];
-          // put bit-packed newRegularDelta starting at position i,
-          //  and pad the front and back with newRegularDeltas
+        //        System.out.println("newRegularDelta = " + newRegularDelta);
+        //        countForRegularNewDeltas.addValue(newRegularDelta);
 
-          // 1. deal with padding the first byte
-          for (int x = i - 1; x >= 0; x--) {
-            // y is the position in the bit-packed newRegularDelta, 0->packWidth-1 from low to high bits
-            int y = (i - x - 1) % packWidth;
-            // get the bit indicated by y pos
-            int value = BytesUtils.getLongN(newRegularDelta, y);
-            // put the bit indicated by y pos into regularBytes
-            // setByte pos is from high to low starting from 0, corresponding to x
-            byteArray[0] = BytesUtils.setByteN(byteArray[0], x, value);
-          }
-
-          // 2. deal with putting newRegularDeltas
-          BytesUtils.longToBytes(newRegularDelta, byteArray, i, packWidth);
-
-          // 3. deal with padding the last byte
-          for (int x = endPos + 1; x < byteNum * 8; x++) {
-            // y is the position in the bit-packed newRegularDelta, 0->packWidth-1 from low to high bits
-            int y = packWidth - 1 - (x - endPos - 1) % packWidth;
-            // get the bit indicated by y pos
-            int value = BytesUtils.getLongN(newRegularDelta, y);
-            // put the bit indicated by y pos into regularBytes
-            // setByte pos is from high to low starting from 0, corresponding to x
-            byteArray[byteNum - 1] = BytesUtils.setByteN(byteArray[byteNum - 1], x, value);
-          }
-
-          regularBytes.put(i, byteArray);
-        }
-
-        for (int i = 0; i < packNum; i++) {
-          //  (1) extract bits from deltaBuf,
-          //  (2) compare bits with encodedRegularTimeInterval,
-          //  (3) equal to reuse, else to convert
-
-          if (packWidth == 0) {
+        if (packWidth == 0) {
+          for (int i = 0; i < packNum; i++) {
             data[i] = previous + minDeltaBase; // v=0
+            previous = data[i];
+            //            System.out.println("[RL]0");
+            //            TsFileConstant.countForRegularZero.addValue(1);
+          }
+        } else if (newRegularDelta < 0
+            || newRegularDelta
+            >= Math.pow(2, packWidth)) { // no need to compare equality cause impossible
+          for (int i = 0; i < packNum; i++) {
+            long v = BytesUtils.bytesToLong(deltaBuf, packWidth * i, packWidth);
+            data[i] = previous + minDeltaBase + v;
+            previous = data[i];
+            //            System.out.println("[RL]no");
+            //            TsFileConstant.countForRegularNOTEqual.addValue(1);
+          }
+        } else {
+          //          long start1 = System.nanoTime();
+          Map<Integer, byte[]> regularBytes;
+          if (allRegularBytes.containsKey(new Pair<>(newRegularDelta, packWidth))) {
+            regularBytes = allRegularBytes.get(new Pair<>(newRegularDelta, packWidth));
+            //            countForHitNewDeltas.addValue(1);
+            //            System.out.println("here");
           } else {
+            //            countForNotHitNewDeltas.addValue(1);
+            //            System.out.println("here");
+
+            regularBytes = new HashMap<>();
+            for (int i = 0; i < 8; i++) {
+              // i is the starting position in the byte from high to low bits
+              int endPos = i + packWidth - 1; // starting from 0
+              int byteNum = endPos / 8 + 1;
+              byte[] byteArray = new byte[byteNum];
+              if (newRegularDelta != 0) {
+                // otherwise newRegularDelta=0 so leave byteArray as initial zeros
+
+                // put bit-packed newRegularDelta starting at position i,
+                //  and pad the front and back with newRegularDeltas
+                // 1. deal with padding the first byte
+                for (int x = i - 1; x >= 0; x--) {
+                  // y is the position in the bit-packed newRegularDelta, 0->packWidth-1 from low to
+                  // high bits
+                  int y = (i - x - 1) % packWidth;
+                  // get the bit indicated by y pos
+                  int value = BytesUtils.getLongN(newRegularDelta, y);
+                  // put the bit indicated by y pos into regularBytes
+                  // setByte pos is from high to low starting from 0, corresponding to x
+                  byteArray[0] = BytesUtils.setByteN(byteArray[0], x, value);
+                }
+
+                // 2. deal with putting newRegularDeltas
+                BytesUtils.longToBytes(newRegularDelta, byteArray, i, packWidth);
+
+                // 3. deal with padding the last byte
+                for (int x = endPos + 1; x < byteNum * 8; x++) {
+                  // y is the position in the bit-packed newRegularDelta, 0->packWidth-1 from low to
+                  // high bits
+                  int y = packWidth - 1 - (x - endPos - 1) % packWidth;
+                  // get the bit indicated by y pos
+                  int value = BytesUtils.getLongN(newRegularDelta, y);
+                  // put the bit indicated by y pos into regularBytes
+                  // setByte pos is from high to low starting from 0, corresponding to x
+                  byteArray[byteNum - 1] = BytesUtils.setByteN(byteArray[byteNum - 1], x, value);
+                }
+              }
+              regularBytes.put(i, byteArray);
+            }
+            allRegularBytes.put(new Pair<>(newRegularDelta, packWidth), regularBytes);
+          }
+          //          long elapsedTime1 = System.nanoTime() - start1;
+          //          TsFileConstant.prepareAllRegulars.addValue(elapsedTime1 / 1000.0); // us
+
+          for (int i = 0; i < packNum; i++) {
+            //  (1) extract bits from deltaBuf,
+            //  (2) compare bits with encodedRegularTimeInterval,
+            //  (3) equal to reuse, else to convert
+
             boolean equal = true;
-            int posByteIdx = i * packWidth / 8;
-            int pos = i * packWidth % 8; // the starting position in the byte from high to low bits
+
+            // the starting position in the byte from high to low bits
+            int pos = i * packWidth % 8;
+
             byte[] byteArray = regularBytes.get(pos);
+
+            int posByteIdx = i * packWidth / 8;
+            //            System.out.println("byteArray length=" + byteArray.length);
+            //            byteArrayLengthStatistics.addValue(byteArray.length);
             for (int k = 0; k < byteArray.length; k++, posByteIdx++) {
               byte regular = byteArray[k];
               byte data = deltaBuf[posByteIdx];
               if (regular != data) {
                 equal = false;
+                //                System.out.println("k=" + k);
                 break;
               }
             }
 
+            //            int posByteIdx = ((i + 1) * packWidth - 1) / 8;
+            //            for (int k = byteArray.length - 1; k >= 0; k--, posByteIdx--) {
+            //              // compare the lower bytes first
+            //              byte regular = byteArray[k];
+            //              byte data = deltaBuf[posByteIdx];
+            //              if (regular != data) {
+            //                equal = false;
+            ////                System.out.println("k'=" + (byteArray.length - 1 - k));
+            //                break;
+            //              }
+            //            }
+
             if (equal) {
               data[i] = previous + regularTimeInterval;
-//              System.out.println("[RL]equals");
+              //              System.out.println("[RL]equals");
+              //              TsFileConstant.countForRegularEqual.addValue(1);
             } else {
               long v = BytesUtils.bytesToLong(deltaBuf, packWidth * i, packWidth);
               data[i] = previous + minDeltaBase + v;
-//              System.out.println("[RL]no");
+              //              System.out.println("[RL]no");
+              //              TsFileConstant.countForRegularNOTEqual.addValue(1);
             }
+//            data[i] = previous + regularTimeInterval;
+            previous = data[i];
           }
-          previous = data[i];
         }
       } else { // without regularity-aware decoding
         readPack();
       }
+
+      long runTime = System.nanoTime() - start; // ns
+      TsFileConstant.timeColumnTS2DIFFLoadBatchCost.addValue(runTime / 1000.0); // us
+
+      //      allRegularBytesSize.addValue(allRegularBytes.size());
+      //      System.out.println("allRegularBytes size=" + allRegularBytes.size());
 
       return firstValue;
     }

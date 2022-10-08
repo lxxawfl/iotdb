@@ -123,6 +123,7 @@ import org.apache.iotdb.service.rpc.thrift.TSRawDataQueryReq;
 import org.apache.iotdb.service.rpc.thrift.TSSetSchemaTemplateReq;
 import org.apache.iotdb.service.rpc.thrift.TSSetTimeZoneReq;
 import org.apache.iotdb.service.rpc.thrift.TSStatus;
+import org.apache.iotdb.tsfile.common.constant.TsFileConstant;
 import org.apache.iotdb.tsfile.exception.filter.QueryFilterOptimizationException;
 import org.apache.iotdb.tsfile.exception.write.UnSupportedDataTypeException;
 import org.apache.iotdb.tsfile.file.metadata.enums.CompressionType;
@@ -664,7 +665,11 @@ public class TSServiceImpl implements TSIService.Iface {
   public TSExecuteFinishResp executeFinish() throws TException {
     TSExecuteFinishResp ret = new TSExecuteFinishResp();
     ret.setStatus(RpcUtils.getStatus(TSStatusCode.SUCCESS_STATUS));
-    ret.setExecutionInfo(IOMonitor.print());
+    ret.setExecutionInfo(
+        IOMonitor.print()
+            + ". timeColumnTS2DIFFLoadBatchCost="
+            + TsFileConstant.timeColumnTS2DIFFLoadBatchCost.getSum()
+            + "us");
     IOMonitor.finish();
     return ret;
   }

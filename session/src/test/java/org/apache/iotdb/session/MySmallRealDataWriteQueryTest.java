@@ -1,12 +1,5 @@
 package org.apache.iotdb.session;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import org.apache.iotdb.db.conf.IoTDBConfig;
 import org.apache.iotdb.db.conf.IoTDBDescriptor;
 import org.apache.iotdb.db.engine.compaction.CompactionStrategy;
@@ -17,10 +10,19 @@ import org.apache.iotdb.rpc.StatementExecutionException;
 import org.apache.iotdb.session.SessionDataSet.DataIterator;
 import org.apache.iotdb.tsfile.common.conf.TSFileDescriptor;
 import org.apache.iotdb.tsfile.file.metadata.enums.TSDataType;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class MySmallRealDataWriteQueryTest {
 
@@ -48,8 +50,10 @@ public class MySmallRealDataWriteQueryTest {
   private static long total_time_length = dataMaxTime - dataMinTime;
   private static int total_point_number = 50000;
   private static int iotdb_chunk_point_size = 10000;
-  private static long chunkAvgTimeLen = (long) Math
-      .ceil(total_time_length / Math.ceil(total_point_number * 1.0 / iotdb_chunk_point_size));
+  private static long chunkAvgTimeLen =
+      (long)
+          Math.ceil(
+              total_time_length / Math.ceil(total_point_number * 1.0 / iotdb_chunk_point_size));
   private static String filePath =
       "D:\\github\\m4-lsm\\iotdb\\session\\src\\test\\java\\org\\apache\\iotdb\\session\\BallSpeedSmallData.csv";
   private static int deletePercentage = 0; // 0 means no deletes. 0-100
@@ -60,7 +64,7 @@ public class MySmallRealDataWriteQueryTest {
   private static long range = total_time_length;
   private static boolean enableRegularityTimeDecode = false;
   private static long regularTimeInterval = 511996L;
-//  private static long regularTimeInterval = 511997L;
+  //  private static long regularTimeInterval = 511997L;
   private static String approach = "cpv"; // 选择查询执行算法: 1: MAC, 2: MOC, 3: CPV
 
   @Before
@@ -74,7 +78,8 @@ public class MySmallRealDataWriteQueryTest {
     config.setEnableUnseqCompaction(false);
     config.setEnablePerformanceStat(false);
 
-    TSFileDescriptor.getInstance().getConfig()
+    TSFileDescriptor.getInstance()
+        .getConfig()
         .setEnableRegularityTimeDecode(enableRegularityTimeDecode);
     TSFileDescriptor.getInstance().getConfig().setRegularTimeInterval(regularTimeInterval);
     TSFileDescriptor.getInstance().getConfig().setPageSizeInByte(1073741824);
@@ -107,9 +112,7 @@ public class MySmallRealDataWriteQueryTest {
     EnvironmentUtils.cleanEnv();
   }
 
-  /**
-   * Before writing data, make sure check the server parameter configurations.
-   */
+  /** Before writing data, make sure check the server parameter configurations. */
   // Usage: java -jar WriteData-0.12.4.jar device measurement dataType timestamp_precision
   // total_time_length total_point_number iotdb_chunk_point_size filePath deleteFreq deleteLen
   // timeIdx valueIdx
