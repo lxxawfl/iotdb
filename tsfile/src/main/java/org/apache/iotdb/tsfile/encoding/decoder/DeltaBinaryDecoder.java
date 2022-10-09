@@ -227,15 +227,15 @@ public abstract class DeltaBinaryDecoder extends Decoder {
 
       if (enableRegularityTimeDecode) {
         long newRegularDelta = regularTimeInterval - minDeltaBase;
-        System.out.println("newRegularDelta = " + newRegularDelta);
-        TsFileConstant.regularNewDeltasStatistics.addValue(newRegularDelta);
+        //        System.out.println("newRegularDelta = " + newRegularDelta);
+        //        TsFileConstant.regularNewDeltasStatistics.addValue(newRegularDelta);
 
         if (packWidth == 0) {
           for (int i = 0; i < packNum; i++) {
             data[i] = previous + minDeltaBase; // v=0
             previous = data[i];
-            System.out.println("[RL]0");
-            TsFileConstant.countForRegularZero++;
+            //            System.out.println("[RL]0");
+            //            TsFileConstant.countForRegularZero++;
           }
         } else if (newRegularDelta < 0
             || newRegularDelta
@@ -244,19 +244,19 @@ public abstract class DeltaBinaryDecoder extends Decoder {
             long v = BytesUtils.bytesToLong(deltaBuf, packWidth * i, packWidth);
             data[i] = previous + minDeltaBase + v;
             previous = data[i];
-            System.out.println("[RL]no");
-            TsFileConstant.countForRegularNOTEqual++;
+            //            System.out.println("[RL]no");
+            //            TsFileConstant.countForRegularNOTEqual++;
           }
         } else {
           //          long start1 = System.nanoTime();
           Map<Integer, byte[]> regularBytes;
           if (allRegularBytes.containsKey(new Pair<>(newRegularDelta, packWidth))) {
             regularBytes = allRegularBytes.get(new Pair<>(newRegularDelta, packWidth));
-            TsFileConstant.countForHitNewDeltas.addValue(1);
-            System.out.println("here");
+            //            System.out.println("here");
+            //            TsFileConstant.countForHitNewDeltas.addValue(1);
           } else {
-            TsFileConstant.countForNotHitNewDeltas.addValue(1);
-            System.out.println("here");
+            //            System.out.println("here");
+            //            TsFileConstant.countForNotHitNewDeltas.addValue(1);
 
             regularBytes = new HashMap<>();
             for (int i = 0; i < 8; i++) {
@@ -316,8 +316,8 @@ public abstract class DeltaBinaryDecoder extends Decoder {
             byte[] byteArray = regularBytes.get(pos);
 
             int posByteIdx = i * packWidth / 8;
-            System.out.println("byteArray length=" + byteArray.length);
-            TsFileConstant.byteArrayLengthStatistics.addValue(byteArray.length);
+            //            System.out.println("byteArray length=" + byteArray.length);
+            //            TsFileConstant.byteArrayLengthStatistics.addValue(byteArray.length);
             for (int k = 0; k < byteArray.length; k++, posByteIdx++) {
               byte regular = byteArray[k];
               byte data = deltaBuf[posByteIdx];
@@ -342,13 +342,13 @@ public abstract class DeltaBinaryDecoder extends Decoder {
 
             if (equal) {
               data[i] = previous + regularTimeInterval;
-              System.out.println("[RL]equals");
-              TsFileConstant.countForRegularEqual++;
+              //              System.out.println("[RL]equals");
+              //              TsFileConstant.countForRegularEqual++;
             } else {
               long v = BytesUtils.bytesToLong(deltaBuf, packWidth * i, packWidth);
               data[i] = previous + minDeltaBase + v;
-              System.out.println("[RL]no");
-              TsFileConstant.countForRegularNOTEqual++;
+              //              System.out.println("[RL]no");
+              //              TsFileConstant.countForRegularNOTEqual++;
             }
             //            data[i] = previous + regularTimeInterval;
             previous = data[i];
@@ -358,8 +358,8 @@ public abstract class DeltaBinaryDecoder extends Decoder {
         readPack();
       }
 
-      TsFileConstant.allRegularBytesSize.addValue(allRegularBytes.size());
-      System.out.println("allRegularBytes size=" + allRegularBytes.size());
+      //      TsFileConstant.allRegularBytesSize.addValue(allRegularBytes.size());
+      //      System.out.println("allRegularBytes size=" + allRegularBytes.size());
 
       long runTime = System.nanoTime() - start; // ns
       TsFileConstant.timeColumnTS2DIFFLoadBatchCost.addValue(runTime / 1000.0); // us

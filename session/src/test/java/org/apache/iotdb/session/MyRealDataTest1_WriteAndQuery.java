@@ -101,6 +101,31 @@ public class MyRealDataTest1_WriteAndQuery {
   //  private static long regularTimeInterval = 10000900L;
   //  private static String approach = "mac"; // 选择查询执行算法: 1: MAC, 2: MOC, 3: CPV
 
+  private static String device = "root.debs2012";
+  private static String measurement = "mf03";
+  private static TSDataType tsDataType = TSDataType.INT64; // TSDataType.DOUBLE;
+  private static String timestamp_precision = "ns"; // ns, us, ms
+  private static long dataMinTime = 1329955200008000000L;
+  private static long dataMaxTime = 1329965999991000000L;
+  private static long total_time_length = dataMaxTime - dataMinTime;
+  private static int total_point_number = 1076102;
+  private static int iotdb_chunk_point_size = 100000;
+  private static long chunkAvgTimeLen =
+      (long)
+          Math.ceil(
+              total_time_length / Math.ceil(total_point_number * 1.0 / iotdb_chunk_point_size));
+  private static String filePath =
+      "D:\\github\\m4-lsm\\M4-visualization-exp\\src\\main\\java\\org\\apache\\iotdb\\datasets\\MF03_2.csv";
+  private static int deletePercentage = 0; // 0 means no deletes. 0-100
+  private static int deleteLenPercentage = 0; // 0-100 每次删除的时间长度，用chunkAvgTimeLen的百分比表示
+  private static int timeIdx = 0; // 时间戳idx，从0开始
+  private static int valueIdx = 1; // 值idx，从0开始
+  private static int w = 2;
+  private static long range = total_time_length;
+  private static boolean enableRegularityTimeDecode = true;
+  private static long regularTimeInterval = 10000000L;
+  private static String approach = "mac"; // 选择查询执行算法: 1: MAC, 2: MOC, 3: CPV
+
   //  private static String device = "root.kobelco.trans.03.1090001603.2401604";
   //  private static String measurement = "KOB_0002_00_67";
   //  private static TSDataType tsDataType = TSDataType.INT64; // TSDataType.DOUBLE;
@@ -109,6 +134,33 @@ public class MyRealDataTest1_WriteAndQuery {
   //  private static long dataMaxTime = 1627380839563L;
   //  private static long total_time_length = dataMaxTime - dataMinTime;
   //  private static int total_point_number = 1943180;
+  //  private static int iotdb_chunk_point_size = 100000;
+  //  private static long chunkAvgTimeLen =
+  //      (long)
+  //          Math.ceil(
+  //              total_time_length / Math.ceil(total_point_number * 1.0 / iotdb_chunk_point_size));
+  //  private static String filePath =
+  //
+  //
+  // "D:\\github\\m4-lsm\\M4-visualization-exp\\src\\main\\java\\org\\apache\\iotdb\\datasets\\KOB.csv";
+  //  private static int deletePercentage = 0; // 0 means no deletes. 0-100
+  //  private static int deleteLenPercentage = 0; // 0-100 每次删除的时间长度，用chunkAvgTimeLen的百分比表示
+  //  private static int timeIdx = 0; // 时间戳idx，从0开始
+  //  private static int valueIdx = 1; // 值idx，从0开始
+  //  private static int w = 3;
+  //  private static long range = total_time_length;
+  //  private static boolean enableRegularityTimeDecode = true;
+  //  private static long regularTimeInterval = 1000L;
+  //  private static String approach = "mac"; // 选择查询执行算法: 1: MAC, 2: MOC, 3: CPV
+
+  //  private static String device = "root.kobelco.trans.03.1090001603.2401604";
+  //  private static String measurement = "KOB_0002_00_67";
+  //  private static TSDataType tsDataType = TSDataType.INT64; // TSDataType.DOUBLE;
+  //  private static String timestamp_precision = "ms"; // ns, us, ms
+  //  private static long dataMinTime = 1616805035000L;
+  //  private static long dataMaxTime = 1627380839000L;
+  //  private static long total_time_length = dataMaxTime - dataMinTime;
+  //  private static int total_point_number = 1860287;
   //  private static int iotdb_chunk_point_size = 100000;
   //  private static long chunkAvgTimeLen =
   //      (long)
@@ -127,30 +179,31 @@ public class MyRealDataTest1_WriteAndQuery {
   //  private static long regularTimeInterval = 1000L;
   //  private static String approach = "mac"; // 选择查询执行算法: 1: MAC, 2: MOC, 3: CPV
 
-  private static String device = "root.sg1";
-  private static String measurement = "RcvTime";
-  private static TSDataType tsDataType = TSDataType.INT64; // TSDataType.DOUBLE;
-  private static String timestamp_precision = "ms"; // ns, us, ms
-  private static long dataMinTime = 1616194494000L;
-  private static long dataMaxTime = 1642656230000L;
-  private static long total_time_length = dataMaxTime - dataMinTime;
-  private static int total_point_number = 1330764;
-  private static int iotdb_chunk_point_size = 100000;
-  private static long chunkAvgTimeLen =
-      (long)
-          Math.ceil(
-              total_time_length / Math.ceil(total_point_number * 1.0 / iotdb_chunk_point_size));
-  private static String filePath =
-      "D:\\github\\m4-lsm\\M4-visualization-exp\\src\\main\\java\\org\\apache\\iotdb\\datasets\\RcvTime.csv";
-  private static int deletePercentage = 0; // 0 means no deletes. 0-100
-  private static int deleteLenPercentage = 0; // 0-100 每次删除的时间长度，用chunkAvgTimeLen的百分比表示
-  private static int timeIdx = 0; // 时间戳idx，从0开始
-  private static int valueIdx = 1; // 值idx，从0开始
-  private static int w = 3;
-  private static long range = total_time_length;
-  private static boolean enableRegularityTimeDecode = true;
-  private static long regularTimeInterval = 2000L;
-  private static String approach = "mac"; // 选择查询执行算法: 1: MAC, 2: MOC, 3: CPV
+  //  private static String device = "root.sg1";
+  //  private static String measurement = "RcvTime";
+  //  private static TSDataType tsDataType = TSDataType.INT64; // TSDataType.DOUBLE;
+  //  private static String timestamp_precision = "ms"; // ns, us, ms
+  //  private static long dataMinTime = 1616194494000L;
+  //  private static long dataMaxTime = 1642656230000L;
+  //  private static long total_time_length = dataMaxTime - dataMinTime;
+  //  private static int total_point_number = 1330764;
+  //  private static int iotdb_chunk_point_size = 100000;
+  //  private static long chunkAvgTimeLen =
+  //      (long)
+  //          Math.ceil(
+  //              total_time_length / Math.ceil(total_point_number * 1.0 / iotdb_chunk_point_size));
+  //  private static String filePath =
+  //
+  // "D:\\github\\m4-lsm\\M4-visualization-exp\\src\\main\\java\\org\\apache\\iotdb\\datasets\\RcvTime.csv";
+  //  private static int deletePercentage = 0; // 0 means no deletes. 0-100
+  //  private static int deleteLenPercentage = 0; // 0-100 每次删除的时间长度，用chunkAvgTimeLen的百分比表示
+  //  private static int timeIdx = 0; // 时间戳idx，从0开始
+  //  private static int valueIdx = 1; // 值idx，从0开始
+  //  private static int w = 3;
+  //  private static long range = total_time_length;
+  //  private static boolean enableRegularityTimeDecode = true;
+  //  private static long regularTimeInterval = 2000L;
+  //  private static String approach = "mac"; // 选择查询执行算法: 1: MAC, 2: MOC, 3: CPV
 
   @Before
   public void setUp() throws Exception {
