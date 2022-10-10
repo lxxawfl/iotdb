@@ -53,5 +53,29 @@ public class TsFileConstant {
 
   public static DescriptiveStatistics prepareAllRegulars = new DescriptiveStatistics();
 
-  private TsFileConstant() {}
+  public static long bytesToLong_byteNum1_wholeByte = 0;
+  public static long bytesToLong_byteNum1_smallByte = 0;
+  public static long byteToLong_byteNums_firstByte_wholeByte = 0;
+  public static long byteToLong_byteNums_firstByte_smallByte = 0;
+  public static long byteToLong_byteNums_lastByte_wholeByte = 0;
+  public static long byteToLong_byteNums_lastByte_smallByte = 0;
+  public static long byteToLong_byteNums_middleWholeByte = 0;
+
+  private TsFileConstant() {
+  }
+
+  public static void printByteToLongStatistics() {
+    System.out.println("bytesToLong_byteNum1_wholeByte=" + bytesToLong_byteNum1_wholeByte);
+    System.out.println("bytesToLong_byteNum1_smallByte=" + bytesToLong_byteNum1_smallByte);
+    System.out.println(
+        "byteToLong_byteNums_firstByte_wholeByte=" + byteToLong_byteNums_firstByte_wholeByte);
+    System.out.println(
+        "byteToLong_byteNums_firstByte_smallByte=" + byteToLong_byteNums_firstByte_smallByte);
+    System.out.println(
+        "byteToLong_byteNums_lastByte_wholeByte=" + byteToLong_byteNums_lastByte_wholeByte);
+    System.out.println(
+        "byteToLong_byteNums_lastByte_smallByte=" + byteToLong_byteNums_lastByte_smallByte);
+    System.out
+        .println("byteToLong_byteNums_middleWholeByte=" + byteToLong_byteNums_middleWholeByte);
+  }
 }

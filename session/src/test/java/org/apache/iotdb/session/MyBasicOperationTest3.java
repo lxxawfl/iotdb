@@ -3,15 +3,19 @@ package org.apache.iotdb.session;
 import java.text.DecimalFormat;
 import java.util.Random;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.apache.iotdb.tsfile.common.constant.TsFileConstant;
 import org.apache.iotdb.tsfile.utils.BytesUtils;
+import org.junit.Assert;
 
-public class MyBasicOperationTest2 {
+public class MyBasicOperationTest3 {
 
   public static void main(String[] args) {
     // op1: long v = BytesUtils.bytesToLong(deltaBuf, packWidth * i, packWidth);
-    // op2: put bytes as a whole into long
+    // op2: put bytes as a whole into long, i.e., BytesUtils.bytesToLong2(deltaBuf, packWidth * i, packWidth);
 
-    int repeat = 1;
+    int repeat = 1000000;
+    int packNum = 128;
+    int packWidth = 2;
     DescriptiveStatistics op1 = new DescriptiveStatistics();
     DescriptiveStatistics op2 = new DescriptiveStatistics();
     for (int k = 0; k < repeat; k++) {
@@ -19,60 +23,51 @@ public class MyBasicOperationTest2 {
       Random r = new Random();
       int low = 0; // inclusive
       int high = 256; // exclusive
-      int packNum = 2;
-      int packWidth = 8; // equal to one byte length
-      byte[] buf = new byte[packNum];
+      byte[] buf = new byte[packNum * 8];
       for (int i = 0; i < packNum; i++) {
-        int v = r.nextInt(high - low) + low;
+//        int v = r.nextInt(high - low) + low;
+        int v = 187;
         BytesUtils.longToBytes(v, buf, i * packWidth, packWidth);
       }
 
       // test op1
-      long sum = 0;
+      long[] value1 = new long[packNum];
       long start = System.nanoTime();
       for (int i = 0; i < packNum; i++) {
-        sum += BytesUtils.bytesToLong(buf, packWidth * i, packWidth);
-        System.out.println(BytesUtils.bytesToLong(buf, packWidth * i, packWidth));
+        value1[i] = BytesUtils.bytesToLong(buf, packWidth * i, packWidth);
+//        System.out.println(BytesUtils.bytesToLong(buf, packWidth * i, packWidth));
       }
       long elapsedTime = System.nanoTime() - start;
-      System.out.println(elapsedTime / 1000.0 + "us");
-      System.out.println(sum);
+//      System.out.println(elapsedTime / 1000.0 + "us");
+//      System.out.println(sum);
       op1.addValue(elapsedTime / 1000.0);
 
       // test op2
-      sum = 0;
+      long[] value2 = new long[packNum];
       start = System.nanoTime();
       for (int i = 0; i < packNum; i++) {
-        // op2_a: 把一个byte装到一个long里从低位到高位偏移offset，又即byte的最低位在long中的pos（从低到高从0开始数）
-        sum += (buf[i] & 0xff) << 8; // &0xff is to convert bytes to unsigned bytes
-        // op2_b: 把一个byte的高位x个比特装到一个long的低位x个比特
-        // TODO 如何把一个byte一次分成高位x个比特和低位y个比特
-        System.out.println("---");
-//        System.out.println(buf[i]);
-//        System.out.println((buf[i] & 0xff & 0b11100000) >> 5);
-        sum += (buf[i] & 0xff & 0b11100000) >> 5;
-
-        // op2_c: 把一个byte的低位y个比特装到一个long的从低位到高位pos=packWidth-1的开始
-//        System.out.println((buf[i] & 0xff & ~0b11100000) << 3);
-        sum += (buf[i] & 0xff & ~0b11100000) << 3;
-
-        // op2_d: 把一个byte里的一部分比特装到一个long里
-        int oneNum = 2;
-        int mask = (int) Math.pow(2, oneNum) - 1;
-        int shift = 4;
-        mask = mask << shift; // 0b00110000
-        System.out.println(mask);
-        System.out.println((buf[i] & 0xff & mask) >> shift);
+        value2[i] = BytesUtils.bytesToLong2(buf, packWidth * i, packWidth);
+//        System.out.println(BytesUtils.bytesToLong2(buf, packWidth * i, packWidth));
+//        Assert.assertEquals(value1[i], value2[i]);
       }
       elapsedTime = System.nanoTime() - start;
-      System.out.println(elapsedTime / 1000.0 + "us");
-      System.out.println(sum);
+//      System.out.println(elapsedTime / 1000.0 + "us");
+//      System.out.println(sum2);
       op2.addValue(elapsedTime / 1000.0);
+
+      System.out.println("---------------");
+      for (int i = 0; i < packNum; i++) {
+        Assert.assertEquals(value1[i], value2[i]);
+      }
     }
-    printStat(op1, "op1-convertBitToLong");
-    printStat(op2, "op2-compareByte");
+    printStat(op1, "op1-bytesToLong");
+    printStat(op2, "op2-bytesToLong2");
     System.out.println("op1/op2=" + op1.getMean() / op2.getMean());
     System.out.println("op2/op1=" + op2.getMean() / op1.getMean());
+    System.out.println("repeat=" + repeat);
+    System.out.println("packNum=" + packNum);
+    System.out.println("packWidth=" + packWidth);
+    TsFileConstant.printByteToLongStatistics();
   }
 
   private static String printStat(DescriptiveStatistics statistics, String name) {
