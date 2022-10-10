@@ -15,7 +15,7 @@ public class MyBasicOperationTest3 {
 
     int repeat = 1000000;
     int packNum = 128;
-    int packWidth = 2;
+    int packWidth = 13;
     DescriptiveStatistics op1 = new DescriptiveStatistics();
     DescriptiveStatistics op2 = new DescriptiveStatistics();
     for (int k = 0; k < repeat; k++) {
@@ -25,8 +25,8 @@ public class MyBasicOperationTest3 {
       int high = 256; // exclusive
       byte[] buf = new byte[packNum * 8];
       for (int i = 0; i < packNum; i++) {
-//        int v = r.nextInt(high - low) + low;
-        int v = 187;
+        int v = r.nextInt(high - low) + low;
+//        int v = 187;
         BytesUtils.longToBytes(v, buf, i * packWidth, packWidth);
       }
 

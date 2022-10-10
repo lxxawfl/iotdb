@@ -590,7 +590,8 @@ public class BytesUtils {
         TsFileConstant.bytesToLong_byteNum1_smallByte++;
         int mask = (int) Math.pow(2, 8 - width) - 1; // TODO consider if this to make static
         mask = (~mask & 0xff) >> startPosInByte;
-        return (result[startByte] & 0xff & mask) >> (7 - endPosInByte);
+//        return (result[startByte] & 0xff & mask) >> (7 - endPosInByte);
+        return (result[startByte] & mask) >> (7 - endPosInByte);
       }
     }
     // TODO if across two bytes
@@ -607,7 +608,7 @@ public class BytesUtils {
         TsFileConstant.byteToLong_byteNums_firstByte_smallByte++;
         int mask =
             (int) Math.pow(2, 8 - startPosInByte) - 1; // TODO consider if this to make static
-        value = value | ((result[startByte] & 0xff & mask) << shift);
+        value = value | ((result[startByte] & mask) << shift);
       }
 
       // 2. deal with the last byte
@@ -620,7 +621,8 @@ public class BytesUtils {
         TsFileConstant.byteToLong_byteNums_lastByte_smallByte++;
         int mask =
             (int) Math.pow(2, 7 - endPosInByte) - 1; // TODO consider if this to make static
-        value = value | ((result[endByte] & 0xff & ~mask) >> (7 - endPosInByte));
+        value = value | ((result[endByte] & 0xff & ~mask) >> (7
+            - endPosInByte)); // here mask is negative so need &0xff
       }
 
       // 3. deal with the middle bytes
