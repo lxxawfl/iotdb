@@ -185,13 +185,11 @@ public abstract class DeltaBinaryDecoder extends Decoder {
 
     private boolean enableRegularityTimeDecode;
     private long regularTimeInterval;
-    //    private byte[]
-    //        encodedRegularTimeInterval; // it depends on minDeltaBase and bitWidth of each pack
 
-    private Map<Pair<Long, Integer>, Map<Integer, byte[]>> allRegularBytes =
+    private Map<Pair<Long, Integer>, byte[][]> allRegularBytes =
         new HashMap<>(); // <newRegularDelta,packWidth> -> (relativePos->bytes)
 
-    private Map<Integer, int[]> allFallWithinMasks = new HashMap<>(); // packWidth -> fallWithinMasks
+    private int[][] allFallWithinMasks = new int[7][]; // packWidth(1~7) -> fallWithinMasks[]
 
     public LongDeltaDecoder() {
       super();
@@ -258,20 +256,20 @@ public abstract class DeltaBinaryDecoder extends Decoder {
           int[] fallWithinMasks = null;
           if (packWidth >= 8) {
             fallWithinMasks = null;
-          } else if (allFallWithinMasks.containsKey(packWidth)) {
-            fallWithinMasks = allFallWithinMasks.get(packWidth);
+          } else if (allFallWithinMasks[packWidth - 1] != null) { // 1<=packWidth<=7
+            fallWithinMasks = allFallWithinMasks[packWidth - 1];
           } else { // packWidth<8 and allFallWithinMasks does not contain it
             try {
               fallWithinMasks = TsFileConstant.generateFallWithinMasks(packWidth);
-              allFallWithinMasks.put(packWidth, fallWithinMasks);
+              allFallWithinMasks[packWidth - 1] = fallWithinMasks;
             } catch (Exception ignored) {
             }
           }
-          Map<Integer, byte[]> regularBytes;
+          byte[][] regularBytes;
           if (allRegularBytes.containsKey(new Pair<>(newRegularDelta, packWidth))) {
             regularBytes = allRegularBytes.get(new Pair<>(newRegularDelta, packWidth));
           } else {  // TODO consider if the following steps can be accelerated by using bytes instead of bitwise get and set
-            regularBytes = new HashMap<>();
+            regularBytes = new byte[8][]; // 8 relative positions. relativePos->bytes
             for (int i = 0; i < 8; i++) {
               // i is the starting position in the byte from high to low bits
 
@@ -310,7 +308,7 @@ public abstract class DeltaBinaryDecoder extends Decoder {
                   byteArray[byteNum - 1] = BytesUtils.setByteN(byteArray[byteNum - 1], x, value);
                 }
               }
-              regularBytes.put(i, byteArray);
+              regularBytes[i] = byteArray;
             }
             allRegularBytes.put(new Pair<>(newRegularDelta, packWidth), regularBytes);
           }
@@ -326,7 +324,7 @@ public abstract class DeltaBinaryDecoder extends Decoder {
             int pos = i * packWidth
                 % 8; // the starting relative position in the byte from high to low bits
 
-            byte[] byteArray = regularBytes.get(pos); // the regular padded bytes to be compared
+            byte[] byteArray = regularBytes[pos]; // the regular padded bytes to be compared
 
             int posByteIdx = i * packWidth / 8; // the start byte of the encoded new delta
 
