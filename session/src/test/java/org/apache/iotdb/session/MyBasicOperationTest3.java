@@ -15,7 +15,7 @@ public class MyBasicOperationTest3 {
 
     int repeat = 1000000;
     int packNum = 128;
-    int packWidth = 13;
+    int packWidth = 2;
     DescriptiveStatistics op1 = new DescriptiveStatistics();
     DescriptiveStatistics op2 = new DescriptiveStatistics();
     for (int k = 0; k < repeat; k++) {

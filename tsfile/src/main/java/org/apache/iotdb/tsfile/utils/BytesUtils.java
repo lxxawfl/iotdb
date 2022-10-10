@@ -588,10 +588,34 @@ public class BytesUtils {
       } else {
         // put bits in the byte from the global position pos to pos+width-1 into the long value
         TsFileConstant.bytesToLong_byteNum1_smallByte++;
-        int mask = (int) Math.pow(2, 8 - width) - 1; // TODO consider if this to make static
-        mask = (~mask & 0xff) >> startPosInByte;
-//        return (result[startByte] & 0xff & mask) >> (7 - endPosInByte);
+        // TODO precompute and reuse masks
+        int mask = 0;
+        if (width == 2) {
+          System.out.println("[RL]2");
+          switch (startPosInByte) {
+            case 0:
+              mask = 0b11000000;
+              break;
+            case 2:
+              mask = 0b00110000;
+              break;
+            case 4:
+              mask = 0b00001100;
+              break;
+            case 6:
+              mask = 0b00000011;
+              break;
+            default:
+              System.out.println("wrong!!!");
+          }
+        } else {
+          System.out.println("[RL]not 2");
+          mask = (int) Math.pow(2, 8 - width) - 1; // TODO consider if this to make static
+          mask = (~mask & 0xff) >> startPosInByte;
+        }
+
         return (result[startByte] & mask) >> (7 - endPosInByte);
+        // here mask is positive so no need &0xff
       }
     }
     // TODO if across two bytes
