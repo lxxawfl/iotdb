@@ -18,6 +18,7 @@
  */
 package org.apache.iotdb.tsfile.common.constant;
 
+import java.io.IOException;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 public class TsFileConstant {
@@ -60,6 +61,44 @@ public class TsFileConstant {
   public static long byteToLong_byteNums_lastByte_wholeByte = 0;
   public static long byteToLong_byteNums_lastByte_smallByte = 0;
   public static long byteToLong_byteNums_middleWholeByte = 0;
+
+  public static int[] endInByteMasks = {
+      0b01111111,
+      0b00111111,
+      0b00011111,
+      0b00001111,
+      0b00000111,
+      0b00000011,
+      0b00000001
+  };
+
+  public static int[] startInByteMasks = {
+      0b10000000,
+      0b11000000,
+      0b11100000,
+      0b11110000,
+      0b11111000,
+      0b11111100,
+      0b11111110
+  };
+
+  /**
+   * example: int[] fallWithinMasks_2 = { 0b11000000, 0b01100000, 0b00110000, 0b00011000,
+   * 0b00001100, 0b00000110, 0b00000011 }; int[] fallWithinMasks_3 = { 0b11100000, 0b01110000,
+   * 0b00111000, 0b00011100, 0b00001110, 0b00000111 };
+   */
+  public static int[] generateFallWithinMasks(int packWidth) throws IOException {
+    if (packWidth >= 8) {
+      throw new IOException("only accept packWidth smaller than 8.");
+    }
+    int num = 9 - packWidth;
+    int[] res = new int[num];
+    int mask = (int) Math.pow(2, packWidth) - 1;
+    for (int i = num - 1; i >= 0; i--) {
+      res[i] = mask << (num - 1 - i);
+    }
+    return res;
+  }
 
   private TsFileConstant() {
   }

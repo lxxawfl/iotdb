@@ -1,5 +1,6 @@
 package org.apache.iotdb.session;
 
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.Random;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
@@ -9,13 +10,21 @@ import org.junit.Assert;
 
 public class MyBasicOperationTest3 {
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws IOException {
     // op1: long v = BytesUtils.bytesToLong(deltaBuf, packWidth * i, packWidth);
     // op2: put bytes as a whole into long, i.e., BytesUtils.bytesToLong2(deltaBuf, packWidth * i, packWidth);
 
     int repeat = 1000000;
     int packNum = 128;
-    int packWidth = 2;
+    int packWidth = 9;
+
+    int[] fallWithinMasks;
+    if (packWidth < 8) {
+      fallWithinMasks = TsFileConstant.generateFallWithinMasks(packWidth);
+    } else {
+      fallWithinMasks = null;
+    }
+
     DescriptiveStatistics op1 = new DescriptiveStatistics();
     DescriptiveStatistics op2 = new DescriptiveStatistics();
     for (int k = 0; k < repeat; k++) {
@@ -26,7 +35,7 @@ public class MyBasicOperationTest3 {
       byte[] buf = new byte[packNum * 8];
       for (int i = 0; i < packNum; i++) {
         int v = r.nextInt(high - low) + low;
-//        int v = 187;
+//        int v = 1;
         BytesUtils.longToBytes(v, buf, i * packWidth, packWidth);
       }
 
@@ -46,7 +55,7 @@ public class MyBasicOperationTest3 {
       long[] value2 = new long[packNum];
       start = System.nanoTime();
       for (int i = 0; i < packNum; i++) {
-        value2[i] = BytesUtils.bytesToLong2(buf, packWidth * i, packWidth);
+        value2[i] = BytesUtils.bytesToLong2(buf, packWidth * i, packWidth, fallWithinMasks);
 //        System.out.println(BytesUtils.bytesToLong2(buf, packWidth * i, packWidth));
 //        Assert.assertEquals(value1[i], value2[i]);
       }

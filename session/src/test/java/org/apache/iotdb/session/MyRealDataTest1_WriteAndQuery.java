@@ -73,7 +73,7 @@ public class MyRealDataTest1_WriteAndQuery {
     private static int valueIdx = 1; // 值idx，从0开始
     private static int w = 2;
     private static long range = total_time_length;
-    private static boolean enableRegularityTimeDecode = true;
+    private static boolean enableRegularityTimeDecode = false;
     private static long regularTimeInterval = 511996L;
     private static String approach = "mac"; // 选择查询执行算法: 1: MAC, 2: MOC, 3: CPV
 
