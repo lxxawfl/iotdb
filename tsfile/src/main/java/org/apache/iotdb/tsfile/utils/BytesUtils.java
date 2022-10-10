@@ -560,6 +560,26 @@ public class BytesUtils {
   }
 
   /**
+   * given a byte array, read width bits from specified pos bits and convert it to an long.
+   *
+   * @param result input byte array
+   * @param pos bit offset rather than byte offset
+   * @param width bit-width
+   * @return long variable
+   */
+  public static long bytesToLong2(byte[] result, int pos, int width) {
+    long value = 0;
+//    int temp = 0;
+//    for (int i = 0; i < width; i++) {
+//      temp = (pos + width - 1 - i) / 8;
+//      value = setLongN(value, i, getByteN(result[temp], pos + width - 1 - i));
+//    }
+    //TODO new implementation
+
+    return value;
+  }
+
+  /**
    * convert eight-bytes byte array cut from parameters to long.
    *
    * @param byteNum source bytes which length should be greater than 8
