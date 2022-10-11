@@ -42,9 +42,9 @@ public class MyTest2 {
   private static final String TIMESTAMP_STR = "Time";
 
   private static String[] creationSqls =
-      new String[]{
-          "SET STORAGE GROUP TO root.vehicle.d0",
-          "CREATE TIMESERIES root.vehicle.d0.s0 WITH DATATYPE=INT64",
+      new String[] {
+        "SET STORAGE GROUP TO root.vehicle.d0",
+        "CREATE TIMESERIES root.vehicle.d0.s0 WITH DATATYPE=INT64",
       };
 
   private final String d0s0 = "root.vehicle.d0.s0";
@@ -97,14 +97,14 @@ public class MyTest2 {
     prepareData1();
 
     String[] res =
-        new String[]{
-            "0,1,20,5,20,5[1],30[10]",
-            "25,27,45,20,30,9[33],40[30]",
-            "50,52,54,8,18,8[52],18[54]",
-            "75,null,null,null,null,null,null"
+        new String[] {
+          "0,1,20,5,20,5[1],30[10]",
+          "25,27,45,20,30,9[33],40[30]",
+          "50,52,54,8,18,8[52],18[54]",
+          "75,null,null,null,null,null,null"
         };
     try (Connection connection =
-        DriverManager.getConnection("jdbc:iotdb://127.0.0.1:6667/", "root", "root");
+            DriverManager.getConnection("jdbc:iotdb://127.0.0.1:6667/", "root", "root");
         Statement statement = connection.createStatement()) {
       boolean hasResultSet =
           statement.execute(
@@ -144,8 +144,8 @@ public class MyTest2 {
     // data:
     // https://user-images.githubusercontent.com/33376433/152085323-321ecd70-1253-494f-81ab-fe227d1f5351.png
     try (Connection connection =
-        DriverManager.getConnection(
-            Config.IOTDB_URL_PREFIX + "127.0.0.1:6667/", "root", "root");
+            DriverManager.getConnection(
+                Config.IOTDB_URL_PREFIX + "127.0.0.1:6667/", "root", "root");
         Statement statement = connection.createStatement()) {
 
       for (String sql : creationSqls) {
@@ -184,14 +184,14 @@ public class MyTest2 {
     prepareData2();
 
     String[] res =
-        new String[]{
-            "0,1,20,5,5,5[1],5[1]",
-            "25,30,40,5,5,5[30],5[30]",
-            "50,55,72,5,5,5[65],5[65]",
-            "75,80,90,5,5,5[80],5[80]"
+        new String[] {
+          "0,1,20,5,5,5[1],5[1]",
+          "25,30,40,5,5,5[30],5[30]",
+          "50,55,72,5,5,5[65],5[65]",
+          "75,80,90,5,5,5[80],5[80]"
         };
     try (Connection connection =
-        DriverManager.getConnection("jdbc:iotdb://127.0.0.1:6667/", "root", "root");
+            DriverManager.getConnection("jdbc:iotdb://127.0.0.1:6667/", "root", "root");
         Statement statement = connection.createStatement()) {
       boolean hasResultSet =
           statement.execute(
@@ -231,8 +231,8 @@ public class MyTest2 {
     // data:
     // https://user-images.githubusercontent.com/33376433/152085361-571f64dc-0c32-4f70-9481-bc30e4f6f78a.png
     try (Connection connection =
-        DriverManager.getConnection(
-            Config.IOTDB_URL_PREFIX + "127.0.0.1:6667/", "root", "root");
+            DriverManager.getConnection(
+                Config.IOTDB_URL_PREFIX + "127.0.0.1:6667/", "root", "root");
         Statement statement = connection.createStatement()) {
 
       for (String sql : creationSqls) {
@@ -271,14 +271,14 @@ public class MyTest2 {
     prepareData3();
 
     String[] res =
-        new String[]{
-            "0,1,20,5,15,5[1],15[2]",
-            "25,30,40,5,15,5[30],15[40]",
-            "50,55,72,5,15,5[65],15[66]",
-            "75,80,90,5,15,5[80],15[82]"
+        new String[] {
+          "0,1,20,5,15,5[1],15[2]",
+          "25,30,40,5,15,5[30],15[40]",
+          "50,55,72,5,15,5[65],15[66]",
+          "75,80,90,5,15,5[80],15[82]"
         };
     try (Connection connection =
-        DriverManager.getConnection("jdbc:iotdb://127.0.0.1:6667/", "root", "root");
+            DriverManager.getConnection("jdbc:iotdb://127.0.0.1:6667/", "root", "root");
         Statement statement = connection.createStatement()) {
       boolean hasResultSet =
           statement.execute(
@@ -318,8 +318,8 @@ public class MyTest2 {
     // data:
     // https://user-images.githubusercontent.com/33376433/152085386-ebe57e83-cb49-49e8-b8f8-b80719547c42.png
     try (Connection connection =
-        DriverManager.getConnection(
-            Config.IOTDB_URL_PREFIX + "127.0.0.1:6667/", "root", "root");
+            DriverManager.getConnection(
+                Config.IOTDB_URL_PREFIX + "127.0.0.1:6667/", "root", "root");
         Statement statement = connection.createStatement()) {
 
       for (String sql : creationSqls) {
@@ -357,9 +357,9 @@ public class MyTest2 {
   public void test4() {
     prepareData4();
 
-    String[] res = new String[]{"0,1,10,5,18,3[9],25[6]", "50,60,60,1,1,1[60],1[60]"};
+    String[] res = new String[] {"0,1,10,5,18,3[9],25[6]", "50,60,60,1,1,1[60],1[60]"};
     try (Connection connection =
-        DriverManager.getConnection("jdbc:iotdb://127.0.0.1:6667/", "root", "root");
+            DriverManager.getConnection("jdbc:iotdb://127.0.0.1:6667/", "root", "root");
         Statement statement = connection.createStatement()) {
       boolean hasResultSet =
           statement.execute(
@@ -399,8 +399,8 @@ public class MyTest2 {
     // data:
     // https://user-images.githubusercontent.com/33376433/152088562-830e3272-749a-493a-83ca-1279e66ab145.png
     try (Connection connection =
-        DriverManager.getConnection(
-            Config.IOTDB_URL_PREFIX + "127.0.0.1:6667/", "root", "root");
+            DriverManager.getConnection(
+                Config.IOTDB_URL_PREFIX + "127.0.0.1:6667/", "root", "root");
         Statement statement = connection.createStatement()) {
 
       for (String sql : creationSqls) {
@@ -433,9 +433,9 @@ public class MyTest2 {
   public void test5() {
     prepareData5();
 
-    String[] res = new String[]{"0,1,10,5,18,3[9],25[6]", "50,60,60,1,1,1[60],1[60]"};
+    String[] res = new String[] {"0,1,10,5,18,3[9],25[6]", "50,60,60,1,1,1[60],1[60]"};
     try (Connection connection =
-        DriverManager.getConnection("jdbc:iotdb://127.0.0.1:6667/", "root", "root");
+            DriverManager.getConnection("jdbc:iotdb://127.0.0.1:6667/", "root", "root");
         Statement statement = connection.createStatement()) {
       boolean hasResultSet =
           statement.execute(
@@ -475,8 +475,8 @@ public class MyTest2 {
     // data:
     // https://user-images.githubusercontent.com/33376433/152088820-49351c49-9da2-43dd-8da1-2940ae81ae9d.png
     try (Connection connection =
-        DriverManager.getConnection(
-            Config.IOTDB_URL_PREFIX + "127.0.0.1:6667/", "root", "root");
+            DriverManager.getConnection(
+                Config.IOTDB_URL_PREFIX + "127.0.0.1:6667/", "root", "root");
         Statement statement = connection.createStatement()) {
 
       for (String sql : creationSqls) {

@@ -38,7 +38,7 @@ public class TsFileConstant {
   public static final String PATH_SEPARATER_NO_REGEX = "\\.";
   public static final char DOUBLE_QUOTE = '"';
 
-  public static DescriptiveStatistics timeColumnTS2DIFFLoadBatchCost = new DescriptiveStatistics();
+  public static long timeColumnTS2DIFFLoadBatchCost = 0;
 
   public static long countForRegularEqual = 0; // equal to regular
   public static long countForRegularNOTEqual = 0; // not equal to regular

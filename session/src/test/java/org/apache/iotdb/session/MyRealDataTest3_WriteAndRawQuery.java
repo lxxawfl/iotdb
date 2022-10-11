@@ -11,6 +11,7 @@ import org.apache.iotdb.session.SessionDataSet.DataIterator;
 import org.apache.iotdb.tsfile.common.conf.TSFileDescriptor;
 import org.apache.iotdb.tsfile.file.metadata.enums.TSDataType;
 
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -286,52 +287,7 @@ public class MyRealDataTest3_WriteAndRawQuery {
     dataSet.closeOperationHandle();
     session.close();
 
-    DecimalFormat df = new DecimalFormat("#,###.00");
-    double max = timeColumnTS2DIFFLoadBatchCost.getMax();
-    double min = timeColumnTS2DIFFLoadBatchCost.getMin();
-    double mean = timeColumnTS2DIFFLoadBatchCost.getMean();
-    double std = timeColumnTS2DIFFLoadBatchCost.getStandardDeviation();
-    double p25 = timeColumnTS2DIFFLoadBatchCost.getPercentile(25);
-    double p50 = timeColumnTS2DIFFLoadBatchCost.getPercentile(50);
-    double p75 = timeColumnTS2DIFFLoadBatchCost.getPercentile(75);
-    double p90 = timeColumnTS2DIFFLoadBatchCost.getPercentile(90);
-    double p95 = timeColumnTS2DIFFLoadBatchCost.getPercentile(95);
-    System.out.println(
-        "timeColumnTS2DIFFLoadBatchCost_stats"
-            + ": "
-            + "num="
-            + timeColumnTS2DIFFLoadBatchCost.getN()
-            + ", "
-            // num is inaccurate because I let alone the last chunk
-            + "sum="
-            + df.format(timeColumnTS2DIFFLoadBatchCost.getSum())
-            + "us,"
-            + "mean="
-            + df.format(mean)
-            + ", "
-            + "min="
-            + df.format(min)
-            + ", "
-            + "max="
-            + df.format(max)
-            + ", "
-            + "std="
-            + df.format(std)
-            + ", "
-            + "p25="
-            + df.format(p25)
-            + ", "
-            + "p50="
-            + df.format(p50)
-            + ", "
-            + "p75="
-            + df.format(p75)
-            + ", "
-            + "p90="
-            + df.format(p90)
-            + ", "
-            + "p95="
-            + df.format(p95));
+    System.out.println("timeColumnTS2DIFFLoadBatchCost=" + timeColumnTS2DIFFLoadBatchCost);
 
     System.out.println("Equal Num: " + countForRegularEqual);
     System.out.println("NOT Equal Num: " + countForRegularNOTEqual);
@@ -340,97 +296,8 @@ public class MyRealDataTest3_WriteAndRawQuery {
     System.out.println("hit Num: " + countForHitNewDeltas.getN());
     System.out.println("NOT hit Num: " + countForNotHitNewDeltas.getN());
 
-    max = regularNewDeltasStatistics.getMax();
-    min = regularNewDeltasStatistics.getMin();
-    mean = regularNewDeltasStatistics.getMean();
-    std = regularNewDeltasStatistics.getStandardDeviation();
-    p25 = regularNewDeltasStatistics.getPercentile(25);
-    p50 = regularNewDeltasStatistics.getPercentile(50);
-    p75 = regularNewDeltasStatistics.getPercentile(75);
-    p90 = regularNewDeltasStatistics.getPercentile(90);
-    p95 = regularNewDeltasStatistics.getPercentile(95);
-    System.out.println(
-        "regularNewDeltas_stats"
-            + ": "
-            + "num="
-            + regularNewDeltasStatistics.getN()
-            + ", "
-            // num is inaccurate because I let alone the last chunk
-            + "sum="
-            + df.format(regularNewDeltasStatistics.getSum())
-            + "us,"
-            + "mean="
-            + df.format(mean)
-            + ", "
-            + "min="
-            + df.format(min)
-            + ", "
-            + "max="
-            + df.format(max)
-            + ", "
-            + "std="
-            + df.format(std)
-            + ", "
-            + "p25="
-            + df.format(p25)
-            + ", "
-            + "p50="
-            + df.format(p50)
-            + ", "
-            + "p75="
-            + df.format(p75)
-            + ", "
-            + "p90="
-            + df.format(p90)
-            + ", "
-            + "p95="
-            + df.format(p95));
-
-    max = byteArrayLengthStatistics.getMax();
-    min = byteArrayLengthStatistics.getMin();
-    mean = byteArrayLengthStatistics.getMean();
-    std = byteArrayLengthStatistics.getStandardDeviation();
-    p25 = byteArrayLengthStatistics.getPercentile(25);
-    p50 = byteArrayLengthStatistics.getPercentile(50);
-    p75 = byteArrayLengthStatistics.getPercentile(75);
-    p90 = byteArrayLengthStatistics.getPercentile(90);
-    p95 = byteArrayLengthStatistics.getPercentile(95);
-    System.out.println(
-        "byteArrayLengthStatistics_stats"
-            + ": "
-            + "num="
-            + byteArrayLengthStatistics.getN()
-            + ", "
-            // num is inaccurate because I let alone the last chunk
-            + "sum="
-            + df.format(byteArrayLengthStatistics.getSum())
-            + "us,"
-            + "mean="
-            + df.format(mean)
-            + ", "
-            + "min="
-            + df.format(min)
-            + ", "
-            + "max="
-            + df.format(max)
-            + ", "
-            + "std="
-            + df.format(std)
-            + ", "
-            + "p25="
-            + df.format(p25)
-            + ", "
-            + "p50="
-            + df.format(p50)
-            + ", "
-            + "p75="
-            + df.format(p75)
-            + ", "
-            + "p90="
-            + df.format(p90)
-            + ", "
-            + "p95="
-            + df.format(p95));
+    printStat(regularNewDeltasStatistics, "regularNewDeltasStatistics");
+    printStat(byteArrayLengthStatistics, "byteArrayLengthStatistics");
 
     System.out.println("allRegularBytes size: " + allRegularBytesSize.getMax());
     System.out.println("prepare AllRegularBytes cost: " + prepareAllRegulars.getSum() + "us");
@@ -543,5 +410,56 @@ public class MyRealDataTest3_WriteAndRawQuery {
     } else {
       throw new IOException("data type wrong");
     }
+  }
+
+  public static String printStat(DescriptiveStatistics statistics, String name) {
+    DecimalFormat df = new DecimalFormat("#,###.00");
+    double max = statistics.getMax();
+    double min = statistics.getMin();
+    double mean = statistics.getMean();
+    double std = statistics.getStandardDeviation();
+    double p25 = statistics.getPercentile(25);
+    double p50 = statistics.getPercentile(50);
+    double p75 = statistics.getPercentile(75);
+    double p90 = statistics.getPercentile(90);
+    double p95 = statistics.getPercentile(95);
+    String res =
+        name
+            + "_stats"
+            + ": "
+            + "num="
+            + statistics.getN()
+            + ", "
+            + "sum="
+            + df.format(statistics.getSum())
+            + "us,"
+            + "mean="
+            + df.format(mean)
+            + ", "
+            + "min="
+            + df.format(min)
+            + ", "
+            + "max="
+            + df.format(max)
+            + ", "
+            + "std="
+            + df.format(std)
+            + ", "
+            + "p25="
+            + df.format(p25)
+            + ", "
+            + "p50="
+            + df.format(p50)
+            + ", "
+            + "p75="
+            + df.format(p75)
+            + ", "
+            + "p90="
+            + df.format(p90)
+            + ", "
+            + "p95="
+            + df.format(p95);
+    System.out.println(res);
+    return res;
   }
 }
