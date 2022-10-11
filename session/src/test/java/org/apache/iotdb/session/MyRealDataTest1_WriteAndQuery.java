@@ -2,13 +2,9 @@ package org.apache.iotdb.session;
 
 import org.apache.iotdb.db.conf.IoTDBConfig;
 import org.apache.iotdb.db.conf.IoTDBDescriptor;
-import org.apache.iotdb.db.engine.compaction.CompactionStrategy;
-import org.apache.iotdb.db.utils.EnvironmentUtils;
-import org.apache.iotdb.jdbc.Config;
 import org.apache.iotdb.rpc.IoTDBConnectionException;
 import org.apache.iotdb.rpc.StatementExecutionException;
 import org.apache.iotdb.session.SessionDataSet.DataIterator;
-import org.apache.iotdb.tsfile.common.conf.TSFileDescriptor;
 import org.apache.iotdb.tsfile.file.metadata.enums.TSDataType;
 
 import org.junit.After;
@@ -208,47 +204,47 @@ public class MyRealDataTest1_WriteAndQuery {
 
   @Before
   public void setUp() throws Exception {
-    config.setEnableCPV(true);
-    config.setTimestampPrecision(timestamp_precision);
-    config.setAvgSeriesPointNumberThreshold(iotdb_chunk_point_size);
-    config.setUnSeqTsFileSize(1073741824);
-    config.setSeqTsFileSize(1073741824);
-    config.setCompactionStrategy(CompactionStrategy.NO_COMPACTION);
-    config.setEnableUnseqCompaction(false);
-    config.setEnablePerformanceStat(false);
-
-    TSFileDescriptor.getInstance()
-        .getConfig()
-        .setEnableRegularityTimeDecode(enableRegularityTimeDecode);
-    TSFileDescriptor.getInstance().getConfig().setRegularTimeInterval(regularTimeInterval);
-    TSFileDescriptor.getInstance().getConfig().setPageSizeInByte(1073741824);
-
-    EnvironmentUtils.envSetUp(); // start after configuration settings
-    Class.forName(Config.JDBC_DRIVER_NAME);
-
-    System.out.println("[WriteData] device=" + device);
-    System.out.println("[WriteData] measurement=" + measurement);
-    System.out.println("[WriteData] dataType=" + tsDataType);
-    System.out.println("[WriteData] timestamp_precision=" + timestamp_precision);
-    System.out.println("[WriteData] dataMinTime=" + dataMinTime);
-    System.out.println("[WriteData] dataMaxTime=" + dataMaxTime);
-    System.out.println("[WriteData] total_time_length=" + total_time_length);
-    System.out.println("[WriteData] total_point_number=" + total_point_number);
-    System.out.println("[WriteData] iotdb_chunk_point_size=" + iotdb_chunk_point_size);
-    System.out.println("[WriteData] derived estimated chunkAvgTimeLen =" + chunkAvgTimeLen);
-    System.out.println("[WriteData] filePath=" + filePath);
-    System.out.println("[WriteData] deletePercentage=" + deletePercentage);
-    System.out.println("[WriteData] deleteLenPercentage=" + deleteLenPercentage);
-    System.out.println("[WriteData] timeIdx=" + timeIdx);
-    System.out.println("[WriteData] valueIdx=" + valueIdx);
-    System.out.println(
-        "[WriteData] enableRegularityTimeDecode="
-            + TSFileDescriptor.getInstance().getConfig().isEnableRegularityTimeDecode());
+    //    config.setEnableCPV(true);
+    //    config.setTimestampPrecision(timestamp_precision);
+    //    config.setAvgSeriesPointNumberThreshold(iotdb_chunk_point_size);
+    //    config.setUnSeqTsFileSize(1073741824);
+    //    config.setSeqTsFileSize(1073741824);
+    //    config.setCompactionStrategy(CompactionStrategy.NO_COMPACTION);
+    //    config.setEnableUnseqCompaction(false);
+    //    config.setEnablePerformanceStat(false);
+    //
+    //    TSFileDescriptor.getInstance()
+    //        .getConfig()
+    //        .setEnableRegularityTimeDecode(enableRegularityTimeDecode);
+    //    TSFileDescriptor.getInstance().getConfig().setRegularTimeInterval(regularTimeInterval);
+    //    TSFileDescriptor.getInstance().getConfig().setPageSizeInByte(1073741824);
+    //
+    //    EnvironmentUtils.envSetUp(); // start after configuration settings
+    //    Class.forName(Config.JDBC_DRIVER_NAME);
+    //
+    //    System.out.println("[WriteData] device=" + device);
+    //    System.out.println("[WriteData] measurement=" + measurement);
+    //    System.out.println("[WriteData] dataType=" + tsDataType);
+    //    System.out.println("[WriteData] timestamp_precision=" + timestamp_precision);
+    //    System.out.println("[WriteData] dataMinTime=" + dataMinTime);
+    //    System.out.println("[WriteData] dataMaxTime=" + dataMaxTime);
+    //    System.out.println("[WriteData] total_time_length=" + total_time_length);
+    //    System.out.println("[WriteData] total_point_number=" + total_point_number);
+    //    System.out.println("[WriteData] iotdb_chunk_point_size=" + iotdb_chunk_point_size);
+    //    System.out.println("[WriteData] derived estimated chunkAvgTimeLen =" + chunkAvgTimeLen);
+    //    System.out.println("[WriteData] filePath=" + filePath);
+    //    System.out.println("[WriteData] deletePercentage=" + deletePercentage);
+    //    System.out.println("[WriteData] deleteLenPercentage=" + deleteLenPercentage);
+    //    System.out.println("[WriteData] timeIdx=" + timeIdx);
+    //    System.out.println("[WriteData] valueIdx=" + valueIdx);
+    //    System.out.println(
+    //        "[WriteData] enableRegularityTimeDecode="
+    //            + TSFileDescriptor.getInstance().getConfig().isEnableRegularityTimeDecode());
   }
 
   @After
   public void tearDown() throws Exception {
-    EnvironmentUtils.cleanEnv();
+    //    EnvironmentUtils.cleanEnv();
   }
 
   /** Before writing data, make sure check the server parameter configurations. */
@@ -257,8 +253,8 @@ public class MyRealDataTest1_WriteAndQuery {
   // timeIdx valueIdx
   @Test
   public void test1() throws Exception {
-    System.out.println("writing data...");
-    writeData();
+    //    System.out.println("writing data...");
+    //    writeData();
 
     System.out.println("querying data...");
     System.out.println("[QueryData] query range=" + range);
@@ -268,15 +264,17 @@ public class MyRealDataTest1_WriteAndQuery {
       throw new IOException("Approach wrong. Only accepts mac/moc/cpv");
     }
     System.out.println("[QueryData] approach=" + approach);
-    if (approach.equals("moc")) {
-      System.out.println(
-          "MAKE SURE you have set the enable_CPV as false in `iotdb-engine.properties` for MOC!");
-      Assert.assertFalse(config.isEnableCPV());
-    } else if (approach.equals("cpv")) {
-      System.out.println(
-          "MAKE SURE you have set the enable_CPV as true in `iotdb-engine.properties` for CPV!");
-      Assert.assertTrue(config.isEnableCPV());
-    }
+    //    if (approach.equals("moc")) {
+    //      System.out.println(
+    //          "MAKE SURE you have set the enable_CPV as false in `iotdb-engine.properties` for
+    // MOC!");
+    //      Assert.assertFalse(config.isEnableCPV());
+    //    } else if (approach.equals("cpv")) {
+    //      System.out.println(
+    //          "MAKE SURE you have set the enable_CPV as true in `iotdb-engine.properties` for
+    // CPV!");
+    //      Assert.assertTrue(config.isEnableCPV());
+    //    }
 
     long minTime;
     long maxTime;

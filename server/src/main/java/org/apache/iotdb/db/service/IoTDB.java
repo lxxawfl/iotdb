@@ -64,6 +64,23 @@ public class IoTDB implements IoTDBMBean {
     } catch (IOException e) {
       logger.error("meet error when doing start checking", e);
     }
+    //    IoTDBConfig config = IoTDBDescriptor.getInstance().getConfig();
+    //    config.setEnableCPV(true);
+    //    config.setTimestampPrecision("ms");
+    //    config.setAvgSeriesPointNumberThreshold(100);
+    //    config.setUnSeqTsFileSize(1073741824);
+    //    config.setSeqTsFileSize(1073741824);
+    //    config.setCompactionStrategy(CompactionStrategy.NO_COMPACTION);
+    //    config.setEnableUnseqCompaction(false);
+    //    config.setEnablePerformanceStat(false);
+    //    TSFileDescriptor.getInstance()
+    //        .getConfig()
+    //        .setEnableRegularityTimeDecode(true);
+    //    TSFileDescriptor.getInstance().getConfig().setRegularTimeInterval(1000);
+    //    TSFileDescriptor.getInstance().getConfig().setPageSizeInByte(1073741824);
+    //    config.setSchemaDir("D:\\github\\m4-lsm\\data_kob_2_true\\system");
+    //    config.setDataDirs(new String[]{"D:\\github\\m4-lsm\\data_kob_2_true\\data"});
+
     IoTDB daemon = IoTDB.getInstance();
     daemon.active();
   }

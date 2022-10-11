@@ -209,6 +209,7 @@ public abstract class DeltaBinaryDecoder extends Decoder {
      * @return long value
      */
     protected long loadIntBatch(ByteBuffer buffer) {
+      TsFileConstant.countLoadIntBatch++;
       long start = System.nanoTime();
 
       packNum = ReadWriteIOUtils.readInt(buffer);
@@ -246,7 +247,7 @@ public abstract class DeltaBinaryDecoder extends Decoder {
         } else {
           // [CASE 3]
           // read regularBytes and deltaBuf
-          byte[][] regularBytes = readRegularBytes(buffer);
+          byte[][] regularBytes = TsFileConstant.readRegularBytes(buffer);
           encodingLength = ceil(packNum * packWidth);
           deltaBuf = new byte[encodingLength];
           buffer.get(deltaBuf);
@@ -333,18 +334,6 @@ public abstract class DeltaBinaryDecoder extends Decoder {
     protected void readHeader(ByteBuffer buffer) {
       minDeltaBase = ReadWriteIOUtils.readLong(buffer);
       firstValue = ReadWriteIOUtils.readLong(buffer);
-    }
-
-    private byte[][] readRegularBytes(ByteBuffer buffer) {
-      byte[][] regularBytes = new byte[8][];
-      for (int i = 0; i < 8; i++) {
-        int byteArrayLength = ReadWriteIOUtils.readInt(buffer);
-        regularBytes[i] = new byte[byteArrayLength];
-        for (int j = 0; j < byteArrayLength; j++) {
-          regularBytes[i][j] = ReadWriteIOUtils.readByte(buffer);
-        }
-      }
-      return regularBytes;
     }
 
     @Override

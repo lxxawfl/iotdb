@@ -9,6 +9,7 @@ import org.apache.iotdb.rpc.IoTDBConnectionException;
 import org.apache.iotdb.rpc.StatementExecutionException;
 import org.apache.iotdb.session.SessionDataSet.DataIterator;
 import org.apache.iotdb.tsfile.common.conf.TSFileDescriptor;
+import org.apache.iotdb.tsfile.common.constant.TsFileConstant;
 import org.apache.iotdb.tsfile.file.metadata.enums.TSDataType;
 
 import org.junit.After;
@@ -62,7 +63,7 @@ public class MySmallRealDataWriteQueryTest {
   private static int valueIdx = 1; // 值idx，从0开始
   private static int w = 3;
   private static long range = total_time_length;
-  private static boolean enableRegularityTimeDecode = false;
+  private static boolean enableRegularityTimeDecode = true;
   private static long regularTimeInterval = 511996L;
   //  private static long regularTimeInterval = 511997L;
   private static String approach = "cpv"; // 选择查询执行算法: 1: MAC, 2: MOC, 3: CPV
@@ -222,6 +223,7 @@ public class MySmallRealDataWriteQueryTest {
     System.out.println("[QueryData] query result line number=" + c);
     dataSet.closeOperationHandle();
     session.close();
+    System.out.println("countLoadIntBatch=" + TsFileConstant.countLoadIntBatch);
   }
 
   public void writeData()

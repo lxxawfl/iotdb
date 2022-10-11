@@ -318,22 +318,13 @@ public abstract class DeltaBinaryEncoder extends Encoder {
                 byteArray[byteNum - 1] = BytesUtils.setByteN(byteArray[byteNum - 1], x, value);
               }
             }
-            //            regularBytes[i] = byteArray;
+            // flush byteArray
             int num = byteArray.length;
             ReadWriteIOUtils.write(num, out);
             for (int j = 0; j < num; j++) {
               ReadWriteIOUtils.write(byteArray[j], out);
             }
           }
-          //          // TODO write out
-          //          for (int i = 0; i < 8; i++) {
-          //            byte[] byteArray = regularBytes[i];
-          //            int num = byteArray.length;
-          //            ReadWriteIOUtils.write(num, out);
-          //            for (int j = 0; j < num; j++) {
-          //              ReadWriteIOUtils.write(byteArray[j], out);
-          //            }
-          //          }
         }
       }
     }
