@@ -178,7 +178,7 @@ public class MyRealDataTest1_WriteAndQuery {
   private static long range = total_time_length;
   private static boolean enableRegularityTimeDecode = true;
   private static long regularTimeInterval = 1000L;
-  private static String approach = "mac"; // 选择查询执行算法: 1: MAC, 2: MOC, 3: CPV
+  private static String approach = "cpv"; // 选择查询执行算法: 1: MAC, 2: MOC, 3: CPV
 
   //  private static String device = "root.sg1";
   //  private static String measurement = "RcvTime";

@@ -220,21 +220,24 @@ public abstract class DeltaBinaryDecoder extends Decoder {
       readIntTotalCount = packNum;
       nextReadIndex = 0;
 
-      encodingLength = ceil(packNum * packWidth);
-      deltaBuf = new byte[encodingLength];
-      buffer.get(deltaBuf);
-      allocateDataArray();
-
       if (enableRegularityTimeDecode) {
         long newRegularDelta = regularTimeInterval - minDeltaBase;
         if (packWidth == 0) {
           // [CASE 1]
+          encodingLength = ceil(packNum * packWidth);
+          deltaBuf = new byte[encodingLength];
+          buffer.get(deltaBuf);
+          allocateDataArray();
           for (int i = 0; i < packNum; i++) {
             data[i] = previous + minDeltaBase; // v=0
             previous = data[i];
           }
         } else if (newRegularDelta < 0 || newRegularDelta >= Math.pow(2, packWidth)) {
           // [CASE 2] no need to compare equality cause impossible
+          encodingLength = ceil(packNum * packWidth);
+          deltaBuf = new byte[encodingLength];
+          buffer.get(deltaBuf);
+          allocateDataArray();
           for (int i = 0; i < packNum; i++) {
             long v = BytesUtils.bytesToLong(deltaBuf, packWidth * i, packWidth);
             data[i] = previous + minDeltaBase + v;
@@ -242,7 +245,14 @@ public abstract class DeltaBinaryDecoder extends Decoder {
           }
         } else {
           // [CASE 3]
-          // preprocess to get fallWithinMasks and regularBytes
+          // read regularBytes and deltaBuf
+          byte[][] regularBytes = readRegularBytes(buffer);
+          encodingLength = ceil(packNum * packWidth);
+          deltaBuf = new byte[encodingLength];
+          buffer.get(deltaBuf);
+          allocateDataArray();
+
+          // get fallWithinMasks
           int[] fallWithinMasks = null;
           if (packWidth >= 8) {
             fallWithinMasks = null;
@@ -254,54 +264,6 @@ public abstract class DeltaBinaryDecoder extends Decoder {
               allFallWithinMasks[packWidth - 1] = fallWithinMasks;
             } catch (Exception ignored) {
             }
-          }
-          byte[][] regularBytes;
-          if (allRegularBytes.containsKey(new Pair<>(newRegularDelta, packWidth))) {
-            regularBytes = allRegularBytes.get(new Pair<>(newRegularDelta, packWidth));
-          } else { // TODO consider if the following steps can be accelerated by using bytes instead
-            // of bitwise get and set
-            regularBytes = new byte[8][]; // 8 relative positions. relativePos->bytes
-            for (int i = 0; i < 8; i++) {
-              // i is the starting position in the byte from high to low bits
-
-              int endPos = i + packWidth - 1; // starting from 0
-              int byteNum = endPos / 8 + 1;
-              byte[] byteArray = new byte[byteNum];
-              if (newRegularDelta != 0) {
-                // put bit-packed newRegularDelta starting at position i,
-                //  and pad the front and back with newRegularDeltas.
-                // Otherwise if newRegularDelta=0, just leave byteArray as initial zeros
-
-                // 1. deal with padding the first byte
-                for (int x = i - 1; x >= 0; x--) {
-                  // y is the position in the bit-packed newRegularDelta, 0->packWidth-1 from low to
-                  // high bits
-                  int y = (i - x - 1) % packWidth;
-                  // get the bit indicated by y pos
-                  int value = BytesUtils.getLongN(newRegularDelta, y);
-                  // put the bit indicated by y pos into regularBytes
-                  // setByte pos is from high to low starting from 0, corresponding to x
-                  byteArray[0] = BytesUtils.setByteN(byteArray[0], x, value);
-                }
-
-                // 2. deal with putting newRegularDeltas
-                BytesUtils.longToBytes(newRegularDelta, byteArray, i, packWidth);
-
-                // 3. deal with padding the last byte
-                for (int x = endPos + 1; x < byteNum * 8; x++) {
-                  // y is the position in the bit-packed newRegularDelta, 0->packWidth-1 from low to
-                  // high bits
-                  int y = packWidth - 1 - (x - endPos - 1) % packWidth;
-                  // get the bit indicated by y pos
-                  int value = BytesUtils.getLongN(newRegularDelta, y);
-                  // put the bit indicated by y pos into regularBytes
-                  // setByte pos is from high to low starting from 0, corresponding to x
-                  byteArray[byteNum - 1] = BytesUtils.setByteN(byteArray[byteNum - 1], x, value);
-                }
-              }
-              regularBytes[i] = byteArray;
-            }
-            allRegularBytes.put(new Pair<>(newRegularDelta, packWidth), regularBytes);
           }
 
           // Begin decoding each number in this pack
@@ -341,6 +303,10 @@ public abstract class DeltaBinaryDecoder extends Decoder {
           }
         }
       } else { // without regularity-aware decoding
+        encodingLength = ceil(packNum * packWidth);
+        deltaBuf = new byte[encodingLength];
+        buffer.get(deltaBuf);
+        allocateDataArray();
         readPack();
       }
 
@@ -367,6 +333,18 @@ public abstract class DeltaBinaryDecoder extends Decoder {
     protected void readHeader(ByteBuffer buffer) {
       minDeltaBase = ReadWriteIOUtils.readLong(buffer);
       firstValue = ReadWriteIOUtils.readLong(buffer);
+    }
+
+    private byte[][] readRegularBytes(ByteBuffer buffer) {
+      byte[][] regularBytes = new byte[8][];
+      for (int i = 0; i < 8; i++) {
+        int byteArrayLength = ReadWriteIOUtils.readInt(buffer);
+        regularBytes[i] = new byte[byteArrayLength];
+        for (int j = 0; j < byteArrayLength; j++) {
+          regularBytes[i][j] = ReadWriteIOUtils.readByte(buffer);
+        }
+      }
+      return regularBytes;
     }
 
     @Override
