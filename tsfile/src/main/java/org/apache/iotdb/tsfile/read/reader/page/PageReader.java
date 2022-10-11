@@ -267,8 +267,8 @@ public class PageReader implements IPageReader {
       throws IOException { // note: [startTime,endTime), [curStartTime,curEndTime)
     Map<Integer, BatchData> splitBatchDataMap = new HashMap<>();
     Map<Integer, ChunkMetadata> splitChunkMetadataMap = new HashMap<>();
-    while (timeDecoder.hasNext(timeBuffer)) {
-      long timestamp = timeDecoder.readLong(timeBuffer);
+    long[] timeData = ((LongDeltaDecoder) timeDecoder).getDataArray4CPV(timeBuffer);
+    for (long timestamp : timeData) {
       // prepare corresponding batchData
       if (timestamp < curStartTime) {
         valueDecoder.readLong(valueBuffer); // hard-coded, assuming value is long data type
@@ -282,7 +282,7 @@ public class PageReader implements IPageReader {
         // create batchData
         BatchData batch1 = BatchDataFactory.createBatchData(dataType, true, false);
         splitBatchDataMap.put(idx, batch1);
-        Statistics statistics = new LongStatistics();  // hard-coded, assuming value is long data type
+        LongStatistics statistics = new LongStatistics();  // hard-coded, assuming value is long data type
         // create chunkMetaData
         ChunkMetadata chunkMetadata1 =
             new ChunkMetadata(
@@ -295,9 +295,14 @@ public class PageReader implements IPageReader {
       }
       BatchData batchData1 = splitBatchDataMap.get(idx);
       ChunkMetadata chunkMetadata1 = splitChunkMetadataMap.get(idx);
-      long aLong = valueDecoder.readLong(
-          valueBuffer); // hard-coded, assuming value is long data type
-      if (!isDeleted(timestamp) && (filter == null || filter.satisfy(timestamp, aLong))) {
+
+      // TODO delay the decode of value until the timestamp is valid, skip to the next point when t is invalid
+      // hard-coded, assuming value is long data type
+      long aLong = valueDecoder.readLong(valueBuffer);
+
+      if (!isDeleted(timestamp)) {
+        // remove filter, only check delete, because groupByFilter is handled in this function's own logic
+
         // update batchData1
         batchData1.putLong(timestamp, aLong);
         // update statistics of chunkMetadata1
@@ -341,7 +346,6 @@ public class PageReader implements IPageReader {
 //  }
 
   public boolean partialScan4CPV(long candidateTimestamp) {
-//    System.out.println("here here here");
     long[] timeData = ((LongDeltaDecoder) timeDecoder).getDataArray4CPV(timeBuffer);
     for (long t : timeData) {
       if (t > candidateTimestamp) {

@@ -56,8 +56,8 @@ public class MySmallRealDataWriteQueryTest {
               total_time_length / Math.ceil(total_point_number * 1.0 / iotdb_chunk_point_size));
   private static String filePath =
       "D:\\github\\m4-lsm\\iotdb\\session\\src\\test\\java\\org\\apache\\iotdb\\session\\BallSpeedSmallData.csv";
-  private static int deletePercentage = 1; // 0 means no deletes. 0-100
-  private static int deleteLenPercentage = 30; // 0-100 每次删除的时间长度，用chunkAvgTimeLen的百分比表示
+  private static int deletePercentage = 5; // 0 means no deletes. 0-100
+  private static int deleteLenPercentage = 20; // 0-100 每次删除的时间长度，用chunkAvgTimeLen的百分比表示
   private static int timeIdx = 0; // 时间戳idx，从0开始
   private static int valueIdx = 1; // 值idx，从0开始
   private static int w = 3;

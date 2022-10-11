@@ -621,7 +621,6 @@ public class LocalGroupByExecutor4CPV implements GroupByExecutor {
                 List<IPageReader> pageReaderList =
                     FileLoaderUtils.loadPageReaderList(
                         chunkSuit4CPV.getChunkMetadata(), this.timeFilter);
-                List<ChunkSuit4CPV> tmpCurrentChunkList = new ArrayList<>();
                 for (IPageReader pageReader : pageReaderList) { // assume only one page in a chunk
                   isUpdate =
                       ((PageReader) pageReader).partialScan4CPV(candidateTimestamp); // TODO check
