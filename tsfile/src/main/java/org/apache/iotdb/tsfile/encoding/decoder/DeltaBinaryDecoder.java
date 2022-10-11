@@ -173,7 +173,8 @@ public abstract class DeltaBinaryDecoder extends Decoder {
   public static class LongDeltaDecoder extends DeltaBinaryDecoder {
 
     private long firstValue;
-    private long[] data;
+    private long[] data; // NOTE this does not include firstValue
+    private long[] allData; // assuming only one pack in the buffer to be decoded
     private long previous;
     /**
      * minimum value for all difference.
@@ -201,11 +202,17 @@ public abstract class DeltaBinaryDecoder extends Decoder {
     public long[] getDataArray4CPV(ByteBuffer buffer) {
       // assuming only one pack in the buffer to be decoded
       if (isDataReady) {
-        return data;
+        return allData;
       }
+
       loadIntBatch(buffer);
+      allData = new long[packNum + 1];
+      allData[0] = firstValue;
+      if (packNum >= 0) {
+        System.arraycopy(data, 0, allData, 1, packNum);
+      }
       isDataReady = true;
-      return data;
+      return allData;
     }
 
 //    /**

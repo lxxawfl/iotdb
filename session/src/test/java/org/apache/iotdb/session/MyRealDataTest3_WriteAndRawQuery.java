@@ -61,7 +61,7 @@ public class MyRealDataTest3_WriteAndRawQuery {
   private static long dataMaxTime = 617426057626L;
   private static long total_time_length = dataMaxTime - dataMinTime;
   private static int total_point_number = 1200000;
-  private static int iotdb_chunk_point_size = 100000;
+  private static int iotdb_chunk_point_size = 100;
   private static long chunkAvgTimeLen =
       (long)
           Math.ceil(
@@ -86,7 +86,7 @@ public class MyRealDataTest3_WriteAndRawQuery {
   //  private static long dataMaxTime = 1329965999991045200L;
   //  private static long total_time_length = dataMaxTime - dataMinTime;
   //  private static int total_point_number = 1076102;
-  //  private static int iotdb_chunk_point_size = 100000;
+  //  private static int iotdb_chunk_point_size = 100;
   //  private static long chunkAvgTimeLen = (long) Math
   //      .ceil(total_time_length / Math.ceil(total_point_number * 1.0 / iotdb_chunk_point_size));
   //  private static String filePath =
@@ -110,7 +110,7 @@ public class MyRealDataTest3_WriteAndRawQuery {
   //  private static long dataMaxTime = 1627380839563L;
   //  private static long total_time_length = dataMaxTime - dataMinTime;
   //  private static int total_point_number = 1943180;
-  //  private static int iotdb_chunk_point_size = 100000;
+  //  private static int iotdb_chunk_point_size = 100;
   //  private static long chunkAvgTimeLen =
   //      (long)
   //          Math.ceil(

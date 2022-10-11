@@ -59,7 +59,7 @@ public class PageReader implements IPageReader {
   /**
    * time column in memory
    */
-  public ByteBuffer timeBuffer;
+  public ByteBuffer timeBuffer; // solely consumed either by getDataArray4CPV() or by timeDecoder.hasNext(timeBuffer)&timeDecoder.readLong(timeBuffer)
 
   /**
    * value column in memory
@@ -360,101 +360,34 @@ public class PageReader implements IPageReader {
   @SuppressWarnings("squid:S3776") // Suppress high Cognitive Complexity warning
   @Override
   public BatchData getAllSatisfiedPageData(boolean ascending) throws IOException {
-    // TODO: return null(value no need) or FP&LP
     BatchData pageData = BatchDataFactory.createBatchData(dataType, ascending, false);
 
-    while (timeDecoder.hasNext(timeBuffer)) { // TODO: timeDecoder.data
-      long timestamp = timeDecoder.readLong(timeBuffer);
+    long[] timeData = ((LongDeltaDecoder) timeDecoder).getDataArray4CPV(timeBuffer);
+    for (long timestamp : timeData) {
+      // TODO delay the decode of value until the timestamp is valid, skip to the next point when t is invalid
       long aLong = valueDecoder
           .readLong(valueBuffer); // hard-coded, assuming value is long data type
-      if (!isDeleted(timestamp) && (filter == null || filter.satisfy(timestamp, aLong))) {
+
+      if (!isDeleted(timestamp) && (filter == null || filter.satisfy(timestamp, null))) {
+        // cannot remove filter here because M4-UDF uses time filters, but we can delay the use of value object
+        // assuming the filter is always timeFilter
+
         pageData.putLong(timestamp, aLong);
       }
-
-//      switch (dataType) {
-//        case BOOLEAN:
-//          boolean aBoolean = valueDecoder.readBoolean(valueBuffer);
-//          if (!isDeleted(timestamp)
-//              && (filter == null || filter.satisfy(timestamp, aBoolean))) { // TODO:remove
-//            pageData.putBoolean(timestamp, aBoolean);
-//          }
-//          break;
-//        case INT32:
-//          int anInt = valueDecoder.readInt(valueBuffer);
-//          if (!isDeleted(timestamp) && (filter == null || filter.satisfy(timestamp, anInt))) {
-//            pageData.putInt(timestamp, anInt);
-//          }
-//          break;
-//        case INT64:
-//          long aLong = valueDecoder.readLong(valueBuffer);
-//          if (!isDeleted(timestamp) && (filter == null || filter.satisfy(timestamp, aLong))) {
-//            pageData.putLong(timestamp, aLong);
-//          }
-//          break;
-//        case FLOAT:
-//          float aFloat = valueDecoder.readFloat(valueBuffer);
-//          if (!isDeleted(timestamp) && (filter == null || filter.satisfy(timestamp, aFloat))) {
-//            pageData.putFloat(timestamp, aFloat);
-//          }
-//          break;
-//        case DOUBLE:
-//          double aDouble = valueDecoder.readDouble(valueBuffer);
-//          if (!isDeleted(timestamp) && (filter == null || filter.satisfy(timestamp, aDouble))) {
-//            pageData.putDouble(timestamp, aDouble);
-//          }
-//          break;
-//        case TEXT:
-//          Binary aBinary = valueDecoder.readBinary(valueBuffer);
-//          if (!isDeleted(timestamp) && (filter == null || filter.satisfy(timestamp, aBinary))) {
-//            pageData.putBinary(timestamp, aBinary);
-//          }
-//          break;
-//        default:
-//          throw new UnSupportedDataTypeException(String.valueOf(dataType));
-//      }
-
     }
+
+//    while (timeDecoder.hasNext(timeBuffer)) { // TODO: timeDecoder.data
+//      long timestamp = timeDecoder.readLong(timeBuffer);
+//      long aLong = valueDecoder
+//          .readLong(valueBuffer); // hard-coded, assuming value is long data type
+//      if (!isDeleted(timestamp) && (filter == null || filter.satisfy(timestamp, aLong))) {
+//        // cannot remove filter here because M4-UDF uses time filters
+//        pageData.putLong(timestamp, aLong);
+//      }
+//    }
+
     return pageData.flip();
   }
-
-//  public BatchData getAllSatisfiedPageData_new(boolean ascending) throws IOException {
-//    // TODO: return null(value no need) or FP&LP
-//
-//    BatchData pageData = BatchDataFactory.createBatchData(dataType, ascending, false);
-//
-//    // originally there are chunk->page->pack, but here we write hard coded assuming chunk=page=pack
-//    // therefore we get the data array directly in batch, instead of point-by-point
-//    // Actually, originally decoder->data array->pageReader->batchData, iterating these points twice.
-//    // Here, we try to merge into once.
-//    long[] timestamps = ((LongDeltaDecoder)timeDecoder).getDataArray4CPV(timeBuffer);
-//
-//    // here we write hard-coded assuming always long data type
-////    long aLong = valueDecoder.readLong(valueBuffer);
-//    // TODO
-//
-//
-//    // here we write hard-coded assuming no filters
-//    if (!isDeleted(timestamp)) {
-//      pageData.putLong(timestamp, aLong);
-//    }
-//
-////    }
-//
-////    while (timeDecoder.hasNext(timeBuffer)) { // TODO: timeDecoder.data
-////
-////      long timestamp = timeDecoder.readLong(timeBuffer);
-////
-////      // here we write hard-coded assuming always long data type
-////      long aLong = valueDecoder.readLong(valueBuffer);
-////
-////      // here we write hard-coded assuming no filters
-////      if (!isDeleted(timestamp)) {
-////        pageData.putLong(timestamp, aLong);
-////      }
-////
-////    }
-//    return pageData.flip();
-//  }
 
   @Override
   public Statistics getStatistics() {
