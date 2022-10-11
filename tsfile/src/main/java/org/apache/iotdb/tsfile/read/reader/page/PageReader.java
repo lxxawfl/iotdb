@@ -269,15 +269,15 @@ public class PageReader implements IPageReader {
   @SuppressWarnings("squid:S3776") // Suppress high Cognitive Complexity warning
   @Override
   public BatchData getAllSatisfiedPageData(boolean ascending) throws IOException {
-
+    // TODO: return null(value no need) or FP&LP
     BatchData pageData = BatchDataFactory.createBatchData(dataType, ascending, false);
 
-    while (timeDecoder.hasNext(timeBuffer)) {
+    while (timeDecoder.hasNext(timeBuffer)) { // TODO: timeDecoder.data
       long timestamp = timeDecoder.readLong(timeBuffer);
       switch (dataType) {
         case BOOLEAN:
           boolean aBoolean = valueDecoder.readBoolean(valueBuffer);
-          if (!isDeleted(timestamp) && (filter == null || filter.satisfy(timestamp, aBoolean))) {
+          if (!isDeleted(timestamp) && (filter == null || filter.satisfy(timestamp, aBoolean))) { // TODO:remove
             pageData.putBoolean(timestamp, aBoolean);
           }
           break;

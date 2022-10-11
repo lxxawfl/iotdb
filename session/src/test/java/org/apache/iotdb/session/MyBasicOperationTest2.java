@@ -1,9 +1,11 @@
 package org.apache.iotdb.session;
 
+import org.apache.iotdb.tsfile.utils.BytesUtils;
+
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+
 import java.text.DecimalFormat;
 import java.util.Random;
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import org.apache.iotdb.tsfile.utils.BytesUtils;
 
 public class MyBasicOperationTest2 {
 
@@ -48,12 +50,12 @@ public class MyBasicOperationTest2 {
         // op2_b: 把一个byte的高位x个比特装到一个long的低位x个比特
         // TODO 如何把一个byte一次分成高位x个比特和低位y个比特
         System.out.println("---");
-//        System.out.println(buf[i]);
-//        System.out.println((buf[i] & 0xff & 0b11100000) >> 5);
+        //        System.out.println(buf[i]);
+        //        System.out.println((buf[i] & 0xff & 0b11100000) >> 5);
         sum += (buf[i] & 0xff & 0b11100000) >> 5;
 
         // op2_c: 把一个byte的低位y个比特装到一个long的从低位到高位pos=packWidth-1的开始
-//        System.out.println((buf[i] & 0xff & ~0b11100000) << 3);
+        //        System.out.println((buf[i] & 0xff & ~0b11100000) << 3);
         sum += (buf[i] & 0xff & ~0b11100000) << 3;
 
         // op2_d: 把一个byte里的一部分比特装到一个long里

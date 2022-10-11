@@ -18,24 +18,27 @@
  */
 package org.apache.iotdb.tsfile.utils;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
 import org.apache.iotdb.tsfile.common.conf.TSFileConfig;
 import org.apache.iotdb.tsfile.common.constant.TsFileConstant;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+
 /**
  * BytesUtils is a utility class. It provide conversion among byte array and other type including
- * integer, long, float, boolean, double and string. <br> It also provide other usable function as
- * follow:<br> reading function which receives InputStream. <br> concat function to join a list of
- * byte array to one.<br> get and set one bit in a byte array.
+ * integer, long, float, boolean, double and string. <br>
+ * It also provide other usable function as follow:<br>
+ * reading function which receives InputStream. <br>
+ * concat function to join a list of byte array to one.<br>
+ * get and set one bit in a byte array.
  */
 public class BytesUtils {
 
-  private BytesUtils() {
-  }
+  private BytesUtils() {}
 
   private static final Logger LOG = LoggerFactory.getLogger(BytesUtils.class);
 
@@ -46,20 +49,19 @@ public class BytesUtils {
    * @return byte[4] for integer
    */
   public static byte[] intToBytes(int i) {
-    return new byte[]{
-        (byte) ((i >> 24) & 0xFF),
-        (byte) ((i >> 16) & 0xFF),
-        (byte) ((i >> 8) & 0xFF),
-        (byte) (i & 0xFF)
+    return new byte[] {
+      (byte) ((i >> 24) & 0xFF),
+      (byte) ((i >> 16) & 0xFF),
+      (byte) ((i >> 8) & 0xFF),
+      (byte) (i & 0xFF)
     };
   }
 
   /**
-   * integer convert to byte array, then write four bytes to parameter desc start from
-   * index:offset.
+   * integer convert to byte array, then write four bytes to parameter desc start from index:offset.
    *
-   * @param i      integer to convert
-   * @param desc   byte array be written
+   * @param i integer to convert
+   * @param desc byte array be written
    * @param offset position in desc byte array that conversion result should start
    * @return byte array
    */
@@ -80,8 +82,8 @@ public class BytesUtils {
    *
    * @param srcNum input integer variable
    * @param result byte array to convert
-   * @param pos    start position
-   * @param width  bit-width
+   * @param pos start position
+   * @param width bit-width
    */
   public static void intToBytes(int srcNum, byte[] result, int pos, int width) {
     int temp = 0;
@@ -159,7 +161,7 @@ public class BytesUtils {
   /**
    * convert four-bytes byte array cut from parameters to integer.
    *
-   * @param bytes  source bytes which length should be greater than 4
+   * @param bytes source bytes which length should be greater than 4
    * @param offset position in parameter byte array that conversion result should start
    * @return integer
    */
@@ -181,8 +183,8 @@ public class BytesUtils {
    * given a byte array, read width bits from specified position bits and convert it to an integer.
    *
    * @param result input byte array
-   * @param pos    bit offset rather than byte offset
-   * @param width  bit-width
+   * @param pos bit offset rather than byte offset
+   * @param width bit-width
    * @return integer variable
    */
   public static int bytesToInt(byte[] result, int pos, int width) {
@@ -216,8 +218,8 @@ public class BytesUtils {
   /**
    * float convert to boolean, then write four bytes to parameter desc start from index:offset.
    *
-   * @param x      float
-   * @param desc   byte array be written
+   * @param x float
+   * @param desc byte array be written
    * @param offset position in desc byte array that conversion result should start
    */
   public static void floatToBytes(float x, byte[] desc, int offset) {
@@ -256,7 +258,7 @@ public class BytesUtils {
   /**
    * convert four-bytes byte array cut from parameters to float.
    *
-   * @param b      source bytes which length should be greater than 4
+   * @param b source bytes which length should be greater than 4
    * @param offset position in parameter byte array that conversion result should start
    * @return float
    */
@@ -295,8 +297,8 @@ public class BytesUtils {
   /**
    * convert double to byte into the given byte array started from offset.
    *
-   * @param d      input double
-   * @param bytes  target byte[]
+   * @param d input double
+   * @param bytes target byte[]
    * @param offset start pos
    */
   public static void doubleToBytes(double d, byte[] bytes, int offset) {
@@ -339,7 +341,7 @@ public class BytesUtils {
   /**
    * convert eight-bytes byte array cut from parameters to double.
    *
-   * @param bytes  source bytes which length should be greater than 8
+   * @param bytes source bytes which length should be greater than 8
    * @param offset position in parameter byte array that conversion result should start
    * @return double
    */
@@ -394,11 +396,10 @@ public class BytesUtils {
   }
 
   /**
-   * boolean convert to byte array, then write four bytes to parameter desc start from
-   * index:offset.
+   * boolean convert to byte array, then write four bytes to parameter desc start from index:offset.
    *
-   * @param x      input boolean
-   * @param desc   byte array be written
+   * @param x input boolean
+   * @param desc byte array be written
    * @param offset position in desc byte array that conversion result should start
    * @return byte[1]
    */
@@ -428,7 +429,7 @@ public class BytesUtils {
   /**
    * convert one-bytes byte array cut from parameters to boolean.
    *
-   * @param b      source bytes which length should be greater than 1
+   * @param b source bytes which length should be greater than 1
    * @param offset position in parameter byte array that conversion result should start
    * @return boolean
    */
@@ -452,9 +453,10 @@ public class BytesUtils {
 
   /**
    * specify the result array length. then, convert long to Big-Endian byte from low to high. <br>
-   * e.g.<br> the binary presentation of long number 1000L is {6 bytes equal 0000000} 00000011
-   * 11101000<br> if len = 2, it will return byte array :{00000011 11101000}(Big-Endian) if len = 1,
-   * it will return byte array :{11101000}.
+   * e.g.<br>
+   * the binary presentation of long number 1000L is {6 bytes equal 0000000} 00000011 11101000<br>
+   * if len = 2, it will return byte array :{00000011 11101000}(Big-Endian) if len = 1, it will
+   * return byte array :{11101000}.
    *
    * @param num long variable to be converted
    * @param len length of result byte array
@@ -471,8 +473,8 @@ public class BytesUtils {
   /**
    * long convert to byte array, then write four bytes to parameter desc start from index:offset.
    *
-   * @param num    input long variable
-   * @param desc   byte array be written
+   * @param num input long variable
+   * @param desc byte array be written
    * @param offset position in desc byte array that conversion result should start
    * @return byte array
    */
@@ -490,8 +492,8 @@ public class BytesUtils {
    *
    * @param srcNum input long variable
    * @param result byte array to convert
-   * @param pos    start position
-   * @param width  bit-width
+   * @param pos start position
+   * @param width bit-width
    */
   public static void longToBytes(long srcNum, byte[] result, int pos, int width) {
     int temp = 0;
@@ -511,6 +513,20 @@ public class BytesUtils {
   }
 
   /**
+   * convert an long to a byte array which length is width, then copy this array to the parameter
+   * result from pos.
+   *
+   * @param srcNum input long variable
+   * @param result byte array to convert
+   * @param pos start position
+   * @param width bit-width
+   */
+  public static void longToBytes2(long srcNum, byte[] result, int pos, int width) {
+    // TODO new implementation
+
+  }
+
+  /**
    * convert byte array to long with default length 8. namely.
    *
    * @param byteNum input byte array
@@ -523,11 +539,12 @@ public class BytesUtils {
   /**
    * specify the input byte array length. then, convert byte array to long value from low to high.
    * <br>
-   * e.g.<br> the input byte array is {00000011 11101000}. if len = 2, return 1000 if len = 1,
-   * return 232(only calculate the low byte).
+   * e.g.<br>
+   * the input byte array is {00000011 11101000}. if len = 2, return 1000 if len = 1, return
+   * 232(only calculate the low byte).
    *
    * @param byteNum byte array to be converted
-   * @param len     length of input byte array to be converted
+   * @param len length of input byte array to be converted
    * @return long
    */
   public static long bytesToLong(byte[] byteNum, int len) {
@@ -543,8 +560,8 @@ public class BytesUtils {
    * given a byte array, read width bits from specified pos bits and convert it to an long.
    *
    * @param result input byte array
-   * @param pos    bit offset rather than byte offset
-   * @param width  bit-width
+   * @param pos bit offset rather than byte offset
+   * @param width bit-width
    * @return long variable
    */
   public static long bytesToLong(byte[] result, int pos, int width) {
@@ -560,12 +577,11 @@ public class BytesUtils {
   /**
    * given a byte array, read width bits from specified pos bits and convert it to an long.
    *
-   * @param result          input byte array
-   * @param pos             bit offset rather than byte offset
-   * @param width           bit-width
+   * @param result input byte array
+   * @param pos bit offset rather than byte offset
+   * @param width bit-width
    * @param fallWithinMasks if width is a multiple of 8 or greater than 8, then this parameter null;
-   *                        if width<8, need this parameter to be (9-width) masks that are fully
-   *                        within a byte.
+   *     if width<8, need this parameter to be (9-width) masks that are fully within a byte.
    * @return long variable
    */
   public static long bytesToLong2(byte[] result, int pos, int width, int[] fallWithinMasks) {
@@ -586,35 +602,35 @@ public class BytesUtils {
     if (byteNum == 1) {
       if (endPosInByte - startPosInByte == 7) {
         // put the whole byte into the long value
-//        TsFileConstant.bytesToLong_byteNum1_wholeByte++;
+        //        TsFileConstant.bytesToLong_byteNum1_wholeByte++;
         return result[startByte] & 0xff;
       } else {
         // put bits in the byte from the global position pos to pos+width-1 into the long value
-//        TsFileConstant.bytesToLong_byteNum1_smallByte++;
+        //        TsFileConstant.bytesToLong_byteNum1_smallByte++;
         // TODO precompute and reuse masks
         int mask = fallWithinMasks[startPosInByte];
-//        int mask = 0;
-//        if (width == 2) {
-//          switch (startPosInByte) {
-//            case 0:
-//              mask = 0b11000000;
-//              break;
-//            case 2:
-//              mask = 0b00110000;
-//              break;
-//            case 4:
-//              mask = 0b00001100;
-//              break;
-//            case 6:
-//              mask = 0b00000011;
-//              break;
-//            default:
-//              System.out.println("wrong!!!");
-//          }
-//        } else {
-//          mask = (int) Math.pow(2, 8 - width) - 1; // TODO consider if this to make static
-//          mask = (~mask & 0xff) >> startPosInByte;
-//        }
+        //        int mask = 0;
+        //        if (width == 2) {
+        //          switch (startPosInByte) {
+        //            case 0:
+        //              mask = 0b11000000;
+        //              break;
+        //            case 2:
+        //              mask = 0b00110000;
+        //              break;
+        //            case 4:
+        //              mask = 0b00001100;
+        //              break;
+        //            case 6:
+        //              mask = 0b00000011;
+        //              break;
+        //            default:
+        //              System.out.println("wrong!!!");
+        //          }
+        //        } else {
+        //          mask = (int) Math.pow(2, 8 - width) - 1; // TODO consider if this to make static
+        //          mask = (~mask & 0xff) >> startPosInByte;
+        //        }
 
         return (result[startByte] & mask) >> (7 - endPosInByte);
         // here mask is positive so no need &0xff
@@ -627,13 +643,15 @@ public class BytesUtils {
       int shift = width - (8 - startPosInByte);
       if (startPosInByte == 0) {
         // put the whole byte into the long value's front place among the last width bits
-//        TsFileConstant.byteToLong_byteNums_firstByte_wholeByte++;
+        //        TsFileConstant.byteToLong_byteNums_firstByte_wholeByte++;
         value = value | ((result[startByte] & 0xff) << shift);
       } else {
-        // put the bits in the first byte from relative position pos%8 to the end into the long value's front place among the last width bits
-//        TsFileConstant.byteToLong_byteNums_firstByte_smallByte++;
-//        int mask =
-//            (int) Math.pow(2, 8 - startPosInByte) - 1; // TODO consider if this to make static
+        // put the bits in the first byte from relative position pos%8 to the end into the long
+        // value's front place among the last width bits
+        //        TsFileConstant.byteToLong_byteNums_firstByte_smallByte++;
+        //        int mask =
+        //            (int) Math.pow(2, 8 - startPosInByte) - 1; // TODO consider if this to make
+        // static
         int mask = TsFileConstant.endInByteMasks[startPosInByte - 1];
         value = value | ((result[startByte] & mask) << shift);
       }
@@ -641,35 +659,38 @@ public class BytesUtils {
       // 2. deal with the last byte
       if (endPosInByte == 7) {
         // put the whole byte into the long value's back place among the last width bits
-//        TsFileConstant.byteToLong_byteNums_lastByte_wholeByte++;
+        //        TsFileConstant.byteToLong_byteNums_lastByte_wholeByte++;
         value = value | (result[endByte] & 0xff);
       } else {
-        // put the bits in the last byte from relative position 0 to (pos+width-1)%8 into the long value's back place among the last width bits
-//        TsFileConstant.byteToLong_byteNums_lastByte_smallByte++;
-//        int mask =
-//            (int) Math.pow(2, 7 - endPosInByte) - 1; // TODO consider if this to make static
+        // put the bits in the last byte from relative position 0 to (pos+width-1)%8 into the long
+        // value's back place among the last width bits
+        //        TsFileConstant.byteToLong_byteNums_lastByte_smallByte++;
+        //        int mask =
+        //            (int) Math.pow(2, 7 - endPosInByte) - 1; // TODO consider if this to make
+        // static
         int mask = TsFileConstant.endInByteMasks[endPosInByte];
-        value = value | ((result[endByte] & 0xff & ~mask) >> (7
-            - endPosInByte)); // here mask is negative so need &0xff
+        value =
+            value
+                | ((result[endByte] & 0xff & ~mask)
+                    >> (7 - endPosInByte)); // here mask is negative so need &0xff
       }
 
       // 3. deal with the middle bytes
       for (int k = startByte + 1; k < endByte; k++) {
-//        TsFileConstant.byteToLong_byteNums_middleWholeByte++;
+        //        TsFileConstant.byteToLong_byteNums_middleWholeByte++;
         shift -= 8;
         value = value | ((result[k] & 0xff) << shift);
       }
       return value;
     }
-
   }
 
   /**
    * convert eight-bytes byte array cut from parameters to long.
    *
    * @param byteNum source bytes which length should be greater than 8
-   * @param len     length of input byte array to be converted
-   * @param offset  position in parameter byte array that conversion result should start
+   * @param len length of input byte array to be converted
+   * @param offset position in parameter byte array that conversion result should start
    * @return long
    */
   public static long bytesToLongFromOffset(byte[] byteNum, int len, int offset) {
@@ -743,8 +764,8 @@ public class BytesUtils {
   /**
    * cut out specified length byte array from parameter start from input byte array src and return.
    *
-   * @param src    input byte array
-   * @param start  start index of src
+   * @param src input byte array
+   * @param start start index of src
    * @param length cut off length
    * @return byte array
    */
@@ -761,11 +782,12 @@ public class BytesUtils {
   }
 
   /**
-   * get one bit in input integer. the offset is from low to high and start with 0<br> e.g.<br>
+   * get one bit in input integer. the offset is from low to high and start with 0<br>
+   * e.g.<br>
    * data:1000(00000000 00000000 00000011 11101000), if offset is 4, return 0(111 "0" 1000) if
    * offset is 9, return 1(00000 "1" 1 11101000).
    *
-   * @param data   input int variable
+   * @param data input int variable
    * @param offset bit offset
    * @return 0 or 1
    */
@@ -780,13 +802,14 @@ public class BytesUtils {
 
   /**
    * set one bit in input integer. the offset is from low to high and start with index 0<br>
-   * e.g.<br> data:1000({00000000 00000000 00000011 11101000}), if offset is 4, value is 1, return
+   * e.g.<br>
+   * data:1000({00000000 00000000 00000011 11101000}), if offset is 4, value is 1, return
    * 1016({00000000 00000000 00000011 111 "1" 1000}) if offset is 9, value is 0 return 488({00000000
    * 00000000 000000 "0" 1 11101000}) if offset is 0, value is 0 return 1000(no change).
    *
-   * @param data   input int variable
+   * @param data input int variable
    * @param offset bit offset
-   * @param value  value to set
+   * @param value value to set
    * @return int variable
    */
   public static int setIntN(int data, int offset, int value) {
@@ -799,11 +822,12 @@ public class BytesUtils {
   }
 
   /**
-   * get one bit in input byte. the offset is from low to high and start with 0<br> e.g.<br>
+   * get one bit in input byte. the offset is from low to high and start with 0<br>
+   * e.g.<br>
    * data:16(00010000), if offset is 4, return 1(000 "1" 0000) if offset is 7, return 0("0"
    * 0010000).
    *
-   * @param data   input byte variable
+   * @param data input byte variable
    * @param offset bit offset
    * @return 0/1
    */
@@ -817,13 +841,14 @@ public class BytesUtils {
   }
 
   /**
-   * set one bit in input byte. the offset is from low to high and start with index 0<br> e.g.<br>
+   * set one bit in input byte. the offset is from low to high and start with index 0<br>
+   * e.g.<br>
    * data:16(00010000), if offset is 4, value is 0, return 0({000 "0" 0000}) if offset is 1, value
    * is 1, return 18({00010010}) if offset is 0, value is 0, return 16(no change).
    *
-   * @param data   input byte variable
+   * @param data input byte variable
    * @param offset bit offset
-   * @param value  value to set
+   * @param value value to set
    * @return byte variable
    */
   public static byte setByteN(byte data, int offset, int value) {
@@ -838,7 +863,7 @@ public class BytesUtils {
   /**
    * get one bit in input long. the offset is from low to high and start with 0.
    *
-   * @param data   input long variable
+   * @param data input long variable
    * @param offset bit offset
    * @return 0/1
    */
@@ -854,9 +879,9 @@ public class BytesUtils {
   /**
    * set one bit in input long. the offset is from low to high and start with index 0.
    *
-   * @param data   input long variable
+   * @param data input long variable
    * @param offset bit offset
-   * @param value  value to set
+   * @param value value to set
    * @return long variable
    */
   public static long setLongN(long data, int offset, int value) {
@@ -932,7 +957,7 @@ public class BytesUtils {
    * read bytes specified length from InputStream safely.
    *
    * @param count number of byte to read
-   * @param in    InputStream
+   * @param in InputStream
    * @return byte array
    * @throws IOException cannot read from InputStream
    */

@@ -18,8 +18,9 @@
  */
 package org.apache.iotdb.tsfile.common.constant;
 
-import java.io.IOException;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+
+import java.io.IOException;
 
 public class TsFileConstant {
 
@@ -63,23 +64,11 @@ public class TsFileConstant {
   public static long byteToLong_byteNums_middleWholeByte = 0;
 
   public static int[] endInByteMasks = {
-      0b01111111,
-      0b00111111,
-      0b00011111,
-      0b00001111,
-      0b00000111,
-      0b00000011,
-      0b00000001
+    0b01111111, 0b00111111, 0b00011111, 0b00001111, 0b00000111, 0b00000011, 0b00000001
   };
 
   public static int[] startInByteMasks = {
-      0b10000000,
-      0b11000000,
-      0b11100000,
-      0b11110000,
-      0b11111000,
-      0b11111100,
-      0b11111110
+    0b10000000, 0b11000000, 0b11100000, 0b11110000, 0b11111000, 0b11111100, 0b11111110
   };
 
   /**
@@ -100,8 +89,7 @@ public class TsFileConstant {
     return res;
   }
 
-  private TsFileConstant() {
-  }
+  private TsFileConstant() {}
 
   public static void printByteToLongStatistics() {
     System.out.println("bytesToLong_byteNum1_wholeByte=" + bytesToLong_byteNum1_wholeByte);
@@ -114,7 +102,7 @@ public class TsFileConstant {
         "byteToLong_byteNums_lastByte_wholeByte=" + byteToLong_byteNums_lastByte_wholeByte);
     System.out.println(
         "byteToLong_byteNums_lastByte_smallByte=" + byteToLong_byteNums_lastByte_smallByte);
-    System.out
-        .println("byteToLong_byteNums_middleWholeByte=" + byteToLong_byteNums_middleWholeByte);
+    System.out.println(
+        "byteToLong_byteNums_middleWholeByte=" + byteToLong_byteNums_middleWholeByte);
   }
 }

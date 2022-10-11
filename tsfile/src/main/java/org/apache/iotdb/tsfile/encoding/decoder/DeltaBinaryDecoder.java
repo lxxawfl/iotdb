@@ -19,10 +19,6 @@
 
 package org.apache.iotdb.tsfile.encoding.decoder;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.Map;
 import org.apache.iotdb.tsfile.common.conf.TSFileDescriptor;
 import org.apache.iotdb.tsfile.common.constant.TsFileConstant;
 import org.apache.iotdb.tsfile.encoding.encoder.DeltaBinaryEncoder;
@@ -31,9 +27,15 @@ import org.apache.iotdb.tsfile.utils.BytesUtils;
 import org.apache.iotdb.tsfile.utils.Pair;
 import org.apache.iotdb.tsfile.utils.ReadWriteIOUtils;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * This class is a decoder for decoding the byte array that encoded by {@code
- * DeltaBinaryEncoder}.DeltaBinaryDecoder just supports integer and long values.<br> .
+ * DeltaBinaryEncoder}.DeltaBinaryDecoder just supports integer and long values.<br>
+ * .
  *
  * @see DeltaBinaryEncoder
  */
@@ -42,24 +44,16 @@ public abstract class DeltaBinaryDecoder extends Decoder {
   protected long count = 0;
   protected byte[] deltaBuf;
 
-  /**
-   * the first value in one pack.
-   */
+  /** the first value in one pack. */
   protected int readIntTotalCount = 0;
 
   protected int nextReadIndex = 0;
-  /**
-   * max bit length of all value in a pack.
-   */
+  /** max bit length of all value in a pack. */
   protected int packWidth;
-  /**
-   * data number in this pack.
-   */
+  /** data number in this pack. */
   protected int packNum;
 
-  /**
-   * how many bytes data takes after encoding.
-   */
+  /** how many bytes data takes after encoding. */
   protected int encodingLength;
 
   public DeltaBinaryDecoder() {
@@ -92,9 +86,7 @@ public abstract class DeltaBinaryDecoder extends Decoder {
     private int firstValue;
     private int[] data;
     private int previous;
-    /**
-     * minimum value for all difference.
-     */
+    /** minimum value for all difference. */
     private int minDeltaBase;
 
     public IntDeltaDecoder() {
@@ -178,9 +170,7 @@ public abstract class DeltaBinaryDecoder extends Decoder {
     private long firstValue;
     private long[] data;
     private long previous;
-    /**
-     * minimum value for all difference.
-     */
+    /** minimum value for all difference. */
     private long minDeltaBase;
 
     private boolean enableRegularityTimeDecode;
@@ -268,7 +258,8 @@ public abstract class DeltaBinaryDecoder extends Decoder {
           byte[][] regularBytes;
           if (allRegularBytes.containsKey(new Pair<>(newRegularDelta, packWidth))) {
             regularBytes = allRegularBytes.get(new Pair<>(newRegularDelta, packWidth));
-          } else {  // TODO consider if the following steps can be accelerated by using bytes instead of bitwise get and set
+          } else { // TODO consider if the following steps can be accelerated by using bytes instead
+            // of bitwise get and set
             regularBytes = new byte[8][]; // 8 relative positions. relativePos->bytes
             for (int i = 0; i < 8; i++) {
               // i is the starting position in the byte from high to low bits
@@ -321,8 +312,9 @@ public abstract class DeltaBinaryDecoder extends Decoder {
 
             boolean equal = true;
 
-            int pos = i * packWidth
-                % 8; // the starting relative position in the byte from high to low bits
+            int pos =
+                i * packWidth
+                    % 8; // the starting relative position in the byte from high to low bits
 
             byte[] byteArray = regularBytes[pos]; // the regular padded bytes to be compared
 
@@ -339,9 +331,11 @@ public abstract class DeltaBinaryDecoder extends Decoder {
 
             if (equal) {
               data[i] = previous + regularTimeInterval;
+              //              TsFileConstant.countForRegularEqual++;
             } else {
               long v = BytesUtils.bytesToLong2(deltaBuf, packWidth * i, packWidth, fallWithinMasks);
               data[i] = previous + minDeltaBase + v;
+              //              TsFileConstant.countForRegularNOTEqual++;
             }
             previous = data[i];
           }

@@ -1,22 +1,25 @@
 package org.apache.iotdb.session;
 
+import org.apache.iotdb.tsfile.common.constant.TsFileConstant;
+import org.apache.iotdb.tsfile.utils.BytesUtils;
+
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.junit.Assert;
+
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.Random;
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import org.apache.iotdb.tsfile.common.constant.TsFileConstant;
-import org.apache.iotdb.tsfile.utils.BytesUtils;
-import org.junit.Assert;
 
 public class MyBasicOperationTest3 {
 
   public static void main(String[] args) throws IOException {
     // op1: long v = BytesUtils.bytesToLong(deltaBuf, packWidth * i, packWidth);
-    // op2: put bytes as a whole into long, i.e., BytesUtils.bytesToLong2(deltaBuf, packWidth * i, packWidth);
+    // op2: put bytes as a whole into long, i.e., BytesUtils.bytesToLong2(deltaBuf, packWidth * i,
+    // packWidth);
 
     int repeat = 1000000;
     int packNum = 128;
-    int packWidth = 9;
+    int packWidth = 11;
 
     int[] fallWithinMasks;
     if (packWidth < 8) {
@@ -35,7 +38,7 @@ public class MyBasicOperationTest3 {
       byte[] buf = new byte[packNum * 8];
       for (int i = 0; i < packNum; i++) {
         int v = r.nextInt(high - low) + low;
-//        int v = 1;
+        //        int v = 1;
         BytesUtils.longToBytes(v, buf, i * packWidth, packWidth);
       }
 
@@ -44,11 +47,11 @@ public class MyBasicOperationTest3 {
       long start = System.nanoTime();
       for (int i = 0; i < packNum; i++) {
         value1[i] = BytesUtils.bytesToLong(buf, packWidth * i, packWidth);
-//        System.out.println(BytesUtils.bytesToLong(buf, packWidth * i, packWidth));
+        //        System.out.println(BytesUtils.bytesToLong(buf, packWidth * i, packWidth));
       }
       long elapsedTime = System.nanoTime() - start;
-//      System.out.println(elapsedTime / 1000.0 + "us");
-//      System.out.println(sum);
+      //      System.out.println(elapsedTime / 1000.0 + "us");
+      //      System.out.println(sum);
       op1.addValue(elapsedTime / 1000.0);
 
       // test op2
@@ -56,12 +59,12 @@ public class MyBasicOperationTest3 {
       start = System.nanoTime();
       for (int i = 0; i < packNum; i++) {
         value2[i] = BytesUtils.bytesToLong2(buf, packWidth * i, packWidth, fallWithinMasks);
-//        System.out.println(BytesUtils.bytesToLong2(buf, packWidth * i, packWidth));
-//        Assert.assertEquals(value1[i], value2[i]);
+        //        System.out.println(BytesUtils.bytesToLong2(buf, packWidth * i, packWidth));
+        //        Assert.assertEquals(value1[i], value2[i]);
       }
       elapsedTime = System.nanoTime() - start;
-//      System.out.println(elapsedTime / 1000.0 + "us");
-//      System.out.println(sum2);
+      //      System.out.println(elapsedTime / 1000.0 + "us");
+      //      System.out.println(sum2);
       op2.addValue(elapsedTime / 1000.0);
 
       System.out.println("---------------");
