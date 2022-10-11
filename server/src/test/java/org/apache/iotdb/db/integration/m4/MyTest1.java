@@ -45,7 +45,7 @@ public class MyTest1 {
   private static String[] creationSqls =
       new String[] {
         "SET STORAGE GROUP TO root.vehicle.d0",
-        "CREATE TIMESERIES root.vehicle.d0.s0 WITH DATATYPE=INT32, ENCODING=RLE",
+        "CREATE TIMESERIES root.vehicle.d0.s0 WITH DATATYPE=INT64",
       };
 
   private final String d0s0 = "root.vehicle.d0.s0";

@@ -19,23 +19,18 @@
 
 package org.apache.iotdb.tsfile.encoding.decoder;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
 import org.apache.iotdb.tsfile.common.conf.TSFileDescriptor;
 import org.apache.iotdb.tsfile.common.constant.TsFileConstant;
 import org.apache.iotdb.tsfile.encoding.encoder.DeltaBinaryEncoder;
 import org.apache.iotdb.tsfile.file.metadata.enums.TSEncoding;
 import org.apache.iotdb.tsfile.utils.BytesUtils;
-import org.apache.iotdb.tsfile.utils.Pair;
 import org.apache.iotdb.tsfile.utils.ReadWriteIOUtils;
-
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * This class is a decoder for decoding the byte array that encoded by {@code
- * DeltaBinaryEncoder}.DeltaBinaryDecoder just supports integer and long values.<br>
- * .
+ * DeltaBinaryEncoder}.DeltaBinaryDecoder just supports integer and long values.<br> .
  *
  * @see DeltaBinaryEncoder
  */
@@ -44,16 +39,24 @@ public abstract class DeltaBinaryDecoder extends Decoder {
   protected long count = 0;
   protected byte[] deltaBuf;
 
-  /** the first value in one pack. */
+  /**
+   * the first value in one pack.
+   */
   protected int readIntTotalCount = 0;
 
   protected int nextReadIndex = 0;
-  /** max bit length of all value in a pack. */
+  /**
+   * max bit length of all value in a pack.
+   */
   protected int packWidth;
-  /** data number in this pack. */
+  /**
+   * data number in this pack.
+   */
   protected int packNum;
 
-  /** how many bytes data takes after encoding. */
+  /**
+   * how many bytes data takes after encoding.
+   */
   protected int encodingLength;
 
   public DeltaBinaryDecoder() {
@@ -86,7 +89,9 @@ public abstract class DeltaBinaryDecoder extends Decoder {
     private int firstValue;
     private int[] data;
     private int previous;
-    /** minimum value for all difference. */
+    /**
+     * minimum value for all difference.
+     */
     private int minDeltaBase;
 
     public IntDeltaDecoder() {
@@ -170,16 +175,20 @@ public abstract class DeltaBinaryDecoder extends Decoder {
     private long firstValue;
     private long[] data;
     private long previous;
-    /** minimum value for all difference. */
+    /**
+     * minimum value for all difference.
+     */
     private long minDeltaBase;
 
     private boolean enableRegularityTimeDecode;
     private long regularTimeInterval;
 
-    private Map<Pair<Long, Integer>, byte[][]> allRegularBytes =
-        new HashMap<>(); // <newRegularDelta,packWidth> -> (relativePos->bytes)
+//    private Map<Pair<Long, Integer>, byte[][]> allRegularBytes =
+//        new HashMap<>(); // <newRegularDelta,packWidth> -> (relativePos->bytes)
 
     private int[][] allFallWithinMasks = new int[7][]; // packWidth(1~7) -> fallWithinMasks[]
+
+    private boolean isDataReady = false; // assuming only one pack in the buffer to be decoded
 
     public LongDeltaDecoder() {
       super();
@@ -188,6 +197,33 @@ public abstract class DeltaBinaryDecoder extends Decoder {
       this.regularTimeInterval =
           TSFileDescriptor.getInstance().getConfig().getRegularTimeInterval();
     }
+
+    public long[] getDataArray4CPV(ByteBuffer buffer) {
+      // assuming only one pack in the buffer to be decoded
+      if (isDataReady) {
+        return data;
+      }
+      loadIntBatch(buffer);
+      isDataReady = true;
+      return data;
+    }
+
+//    /**
+//     * @return true if the point whose time equals candidateTimestamp exists, false if not
+//     */
+//    public boolean partialScan4CPV(long candidateTimestamp, ByteBuffer buffer) throws IOException {
+//      long[] timeData = getDataArray4CPV(buffer);
+//      for (long t : timeData) {
+//        if (t > candidateTimestamp) {
+//          return false; // not exist, return early
+//        }
+//        if (t == candidateTimestamp) {
+//          return true; // exist
+//        }
+//      }
+//      return false; // not exist
+//    }
+
 
     /**
      * if there's no decoded data left, decode next pack into {@code data}.
@@ -209,7 +245,7 @@ public abstract class DeltaBinaryDecoder extends Decoder {
      * @return long value
      */
     protected long loadIntBatch(ByteBuffer buffer) {
-      TsFileConstant.countLoadIntBatch++;
+//      TsFileConstant.countLoadIntBatch++;
       long start = System.nanoTime();
 
       packNum = ReadWriteIOUtils.readInt(buffer);
@@ -225,7 +261,7 @@ public abstract class DeltaBinaryDecoder extends Decoder {
         long newRegularDelta = regularTimeInterval - minDeltaBase;
         if (packWidth == 0) {
           // [CASE 1]
-          encodingLength = ceil(packNum * packWidth);
+          encodingLength = ceil(0);
           deltaBuf = new byte[encodingLength];
           buffer.get(deltaBuf);
           allocateDataArray();

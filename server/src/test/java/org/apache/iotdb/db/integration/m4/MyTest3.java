@@ -45,7 +45,7 @@ public class MyTest3 {
   private static String[] creationSqls =
       new String[] {
         "SET STORAGE GROUP TO root.vehicle.d0",
-        "CREATE TIMESERIES root.vehicle.d0.s0 WITH DATATYPE=DOUBLE",
+        "CREATE TIMESERIES root.vehicle.d0.s0 WITH DATATYPE=INT64",
       };
 
   private final String d0s0 = "root.vehicle.d0.s0";
@@ -84,9 +84,9 @@ public class MyTest3 {
 
     String[] res =
         new String[] {
-          "0,1,20,5.0,20.0,5.0[1],30.0[10]",
-          "25,25,45,8.0,30.0,8.0[25],40.0[30]",
-          "50,52,54,8.0,18.0,8.0[52],18.0[54]",
+          "0,1,20,5,20,5[1],30[10]",
+          "25,25,45,8,30,8[25],40[30]",
+          "50,52,54,8,18,8[52],18[54]",
           "75,null,null,null,null,null,null"
         };
     try (Connection connection =
@@ -174,9 +174,9 @@ public class MyTest3 {
 
     String[] res =
         new String[] {
-          "0,FirstPoint=(1,5.0), LastPoint=(20,20.0), BottomPoint=(1,5.0), TopPoint=(10,30.0)",
-          "25,FirstPoint=(25,8.0), LastPoint=(45,30.0), BottomPoint=(25,8.0), TopPoint=(30,40.0)",
-          "50,FirstPoint=(52,8.0), LastPoint=(54,18.0), BottomPoint=(52,8.0), TopPoint=(54,18.0)",
+          "0,FirstPoint=(1,5), LastPoint=(20,20), BottomPoint=(1,5), TopPoint=(10,30)",
+          "25,FirstPoint=(25,8), LastPoint=(45,30), BottomPoint=(25,8), TopPoint=(30,40)",
+          "50,FirstPoint=(52,8), LastPoint=(54,18), BottomPoint=(52,8), TopPoint=(54,18)",
           "75,empty"
         };
     try (Connection connection =
