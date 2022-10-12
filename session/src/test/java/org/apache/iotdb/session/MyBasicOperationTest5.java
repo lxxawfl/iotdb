@@ -1,15 +1,13 @@
 package org.apache.iotdb.session;
 
-import org.apache.iotdb.tsfile.common.constant.TsFileConstant;
-import org.apache.iotdb.tsfile.utils.ReadWriteIOUtils;
-
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import org.junit.Assert;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.text.DecimalFormat;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.apache.iotdb.tsfile.common.constant.TsFileConstant;
+import org.apache.iotdb.tsfile.utils.ReadWriteIOUtils;
+import org.junit.Assert;
 
 public class MyBasicOperationTest5 {
 
@@ -76,6 +74,8 @@ public class MyBasicOperationTest5 {
     printStat(op2, "op2-readRegularBytes");
     System.out.println("op1/op2=" + op1.getMean() / op2.getMean());
     System.out.println("op2/op1=" + op2.getMean() / op1.getMean());
+    System.out.println("but when op1 uses cache to hit like 50%:");
+    System.out.println("op2/(op1*0.5)=" + op2.getMean() / (op1.getMean() * 0.5));
   }
 
   private static String printStat(DescriptiveStatistics statistics, String name) {
